@@ -26,7 +26,7 @@ def logger_handlers_exist(logger: logging.Logger) -> bool:
     return stream_handler_exists and file_handler_exists
 
 
-def initialize_logger(logger_name:str, log_file_path: str, log_level: str = "DEBUG") -> logging.Logger:
+def initialize_logger(logger_name: str, log_file_path: str, log_level: str = "DEBUG") -> logging.Logger:
     """
     This function initializes a logger together with stream and file handler. Performs a check whether a logger
     already exists, if so returns that one, else it initializes a logger by creating a stream handler and file handler.
