@@ -68,7 +68,7 @@ class DataProcessing:
                 extracted_df = self.section_extraction()
 
         if extracted_df is not None and not extracted_df.empty:
-            extracted_df.to_csv(constants.EXTRACTED_DATA_SAVE_PATH, index=False)
+            extracted_df.to_csv(constants.EXTRACTED_DATA_SAVE_PATH, index=False)  # TODO: make this filename dynamic
             logger.info(f"CSV with extracted headers saved to {constants.EXTRACTED_DATA_SAVE_PATH}!")
         else:
             error_message = "Data extraction failed: the resulting DataFrame is empty or None."
