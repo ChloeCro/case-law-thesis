@@ -2,14 +2,29 @@ import os
 import pandas as pd
 from bs4 import BeautifulSoup
 
-from utils import constants
+from utils import constants, logger
+
+logger = logger.get_logger(constants.extraction_logger_name)
+
 
 class HeaderExtractor:
 
     def extract_text_from_section(self, section) -> str:
+        """
+        Extracts and concatenates all stripped strings from a given HTML/XML section.
+        :param section: A BeautifulSoup tag object representing a section.
+        :return: The concatenated string of all text elements within the section.
+        """
         return ' '.join(section.stripped_strings)
 
     def extract_section_info(self, soup):
+        """
+        Extracts information from each section in the provided BeautifulSoup object, including section number, header
+        text, and the full text of the section.
+        :param soup: A BeautifulSoup object representing the parsed XML/HTML document.
+        :return: A dictionary where each key is a section number and the value is another dictionary containing
+              the 'header' (title of the section) and 'text' (full text of the section).
+        """
         section_data = {}
         sections = soup.find_all("section")
         for sec in sections:
@@ -24,6 +39,13 @@ class HeaderExtractor:
         return section_data
 
     def process_xml(self, xml_file):
+        """
+        Processes a single XML file to extract relevant legal judgement information, including global attributes
+        and section-specific data.
+        :param xml_file: The path to the XML file to be processed.
+        :return: A dictionary containing extracted information such as 'ecli', 'date', 'inhoud', 'legal_body',
+              'rechtsgebied', 'wetsverwijzing', and 'sections'. Returns None if no valid sections are found.
+        """
         with open(xml_file, 'r', encoding='utf-8') as file:
             soup = BeautifulSoup(file, 'xml')
 
@@ -50,7 +72,7 @@ class HeaderExtractor:
 
             # Skip file if no section data is found
             if not section_data:
-                print(f"Skipping file {xml_file}: No valid sections found")
+                logger.debug(f"Skipping file {xml_file}: No valid sections found")
                 return None
 
             # Compile all extracted information into a dictionary
@@ -67,6 +89,11 @@ class HeaderExtractor:
             return judgement_data
 
     def process_xml_files_in_folder(self, folder_path):
+        """
+        Processes all XML files within a specified folder, extracting legal judgement information from each file.
+        :param folder_path: The path to the folder containing XML files.
+        :return: A list of dictionaries where each dictionary contains the extracted judgement data from an XML file.
+        """
         all_judgements = []
         file_counter = 0
 
@@ -75,25 +102,27 @@ class HeaderExtractor:
             if filename.endswith('.xml'):
                 file_path = os.path.join(folder_path, filename)
                 file_counter += 1
-                print(f"Processing file {file_counter}: {filename}")
+                logger.info(f"Processing file {file_counter}: {filename}")
                 judgement_data = self.process_xml(file_path)
                 if judgement_data:
                     all_judgements.append(judgement_data)
                 else:
-                    print(f"No valid data extracted from file {filename}")
+                    logger.debug(f"No valid data extracted from file {filename}")
 
         return all_judgements
 
     def extract_headers(self):
+        """
+        Extracts legal judgement headers from XML files in a specified folder and converts the extracted data into a
+        DataFrame.
+        :return: Saves the resulting DataFrame  to a CSV file specified in the constants.
+        """
         # Process the XML files and extract the data
         all_judgements = self.process_xml_files_in_folder(constants.header_data_folder)
 
-        # Convert the extracted data to a DataFrame
+        # Convert the extracted data to a DataFrame and save the DataFrame to a CSV file.
         if all_judgements:
             df = pd.DataFrame(all_judgements)
-            # Display the DataFrame
-            print(df)
-            # Optionally save the DataFrame to a CSV file
             df.to_csv(constants.header_data_save_path, index=False)
         else:
-            print("No valid judgements found in the XML files.")
+            logger.info("No valid judgements found in the XML files.")
