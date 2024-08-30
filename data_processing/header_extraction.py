@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 from utils import constants, logger
 
-logger = logger.get_logger(constants.extraction_logger_name)
+logger = logger.get_logger(constants.EXTRACTION_LOGGER_NAME)
 
 
 class HeaderExtractor:
@@ -123,6 +123,6 @@ class HeaderExtractor:
         # Convert the extracted data to a DataFrame and save the DataFrame to a CSV file.
         if all_judgements:
             df = pd.DataFrame(all_judgements)
-            df.to_csv(constants.header_data_save_path, index=False)
+            df.to_csv(constants.HEADER_DATA_SAVE_PATH, index=False)
         else:
             logger.info("No valid judgements found in the XML files.")
