@@ -118,7 +118,7 @@ class HeaderExtractor:
         :return: Saves the resulting DataFrame  to a CSV file specified in the constants.
         """
         # Process the XML files and extract the data
-        all_judgements = self.process_xml_files_in_folder(constants.header_data_folder)
+        all_judgements = self.process_xml_files_in_folder(constants.HEADER_DATA_INPUT_PATH)
 
         # Convert the extracted data to a DataFrame and save the DataFrame to a CSV file.
         if all_judgements:

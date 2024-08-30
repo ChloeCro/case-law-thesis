@@ -4,7 +4,7 @@ import header_extraction, full_text_extraction, section_extraction
 
 from utils import constants, logger
 
-logger = logger.get_logger(constants.extraction_logger_name)
+logger = logger.get_logger(constants.EXTRACTION_LOGGER_NAME)
 
 
 class DataProcessing:
@@ -59,16 +59,16 @@ class DataProcessing:
         match method:
             case 1:
                 extracted_header_df = self.header_extraction()
-                extracted_header_df.to_csv(constants.header_data_save_path, index=False)
-                logger.info(f"CSV with extracted headers saved to {constants.header_data_save_path}!")
+                extracted_header_df.to_csv(constants.HEADER_DATA_SAVE_PATH, index=False)
+                logger.info(f"CSV with extracted headers saved to {constants.HEADER_DATA_SAVE_PATH}!")
             case 2:
                 extracted_fulltext_df = self.full_text_extraction()
-                extracted_fulltext_df.to_csv(constants.fulltext_data_save_path, index=False)
-                logger.info(f"CSV with extracted headers saved to {constants.fulltext_data_save_path}!")
+                extracted_fulltext_df.to_csv(constants.FULLTEXT_DATA_SAVE_PATH, index=False)
+                logger.info(f"CSV with extracted headers saved to {constants.FULLTEXT_DATA_SAVE_PATH}!")
             case 3:
                 extracted_sections_df = self.section_extraction()
-                extracted_sections_df.to_csv(constants.section_data_save_path, index=False)
-                logger.info(f"CSV with extracted headers saved to {constants.section_data_save_path}!")
+                extracted_sections_df.to_csv(constants.SECTION_DATA_SAVE_PATH, index=False)
+                logger.info(f"CSV with extracted headers saved to {constants.SECTION_DATA_SAVE_PATH}!")
 
 
 if __name__ == '__main__':
@@ -85,7 +85,7 @@ if __name__ == '__main__':
             '"overwegingen", and "beslissing"='
         )
     )
-    parser.add_argument('--input', type=str, default=constants.input_data_path,
+    parser.add_argument('--input', type=str, default=constants.METADATA_PATH.format(year=2022),
                         help="The path to the input data CSV file")
     parser.add_argument('--multi', action='store_true', help="Use multiprocessing?")
 

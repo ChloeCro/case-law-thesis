@@ -67,7 +67,7 @@ def get_logger(script_type: str):
     :param script_type: String that represents the script that is logged.
     :return: Logger object
     """
-    logging_folder = os.path.join(constants.repo_folder, "logger_files")
+    logging_folder = os.path.join(constants.REPO_PATH, "logger_files")
     logger_file_name = f"Logger_{script_type}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"
 
     logger_path = os.path.join(logging_folder, logger_file_name)
