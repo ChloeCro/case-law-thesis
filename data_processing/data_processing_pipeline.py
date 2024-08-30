@@ -47,6 +47,15 @@ class DataProcessing:
         # return section_df
 
     def data_process_selector(self, method):
+        """
+        Selects and executes a data processing method based on the provided method identifier. Depending on the method
+        chosen, the function extracts different types of data, saves the results to a CSV file, and logs the outcome.
+        :param method: An integer representing the data processing method to execute. The options are:
+            1: Extracts headers and saves them to a CSV file at the path specified in `constants.header_data_save_path`.
+            2: Extracts full text and saves it to a CSV file at the path specified in `constants.fulltext_data_save_path`.
+            3: Extracts sections and saves them to a CSV file at the path specified in `constants.section_data_save_path`.
+        :return: The function performs data extraction and saves the results to a CSV file.
+        """
         match method:
             case 1:
                 extracted_header_df = self.header_extraction()
