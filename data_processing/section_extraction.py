@@ -71,13 +71,12 @@ class SectionExtractor:
 
     def process_files_in_parallel(self, files):
         num_processes = multiprocessing.cpu_count()
-        print(num_processes)
         pool = multiprocessing.Pool(processes=num_processes)
 
         # Use the multiprocessing pool to process the XML files in parallel
-        print("start multiprocessing here")
+        logger.info("Start multiprocessing...")
         result_lists = pool.map(self.process_xml, files)
-        print(len(result_lists))
+
         # Close the pool and wait for the worker processes to finish
         pool.close()
         pool.join()
@@ -87,10 +86,6 @@ class SectionExtractor:
     def process_section_extraction(self):
         # Set path to XML files
         years = [2020, 2021, 2022]
-        # years = [2022]
-
-        # year = args.year
-        print("start")
         for year in years:
             folder_path = constants.RAW_DIR.format(year=year)
             # folder_path = f'Dataset/Raw/{year}'
@@ -105,10 +100,6 @@ class SectionExtractor:
                             'rechtsgebied', 'wetsverwijzing', 'procesverloop',
                             'overwegingen', 'beslissing']
             df = pd.DataFrame(filtered_results, columns=column_names)
-            print(len(df))
-
-            # Further processing or analysis with the DataFrame
-            print(df.head())
 
             metadata_file_path = constants.METADATA_PATH.format(year=year)
             df.to_csv(metadata_file_path, index=False)
