@@ -1,14 +1,11 @@
 import os
-import sys
-import re
-import string
-import argparse
 import multiprocessing
 import pandas as pd
-import numpy as np
 
 from bs4 import BeautifulSoup
-from utils import constants
+from utils import constants, logger
+
+logger = logger.get_logger(constants.EXTRACTION_LOGGER_NAME)
 
 
 class SectionExtractor:
