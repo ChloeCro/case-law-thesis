@@ -2,11 +2,12 @@ import os
 import pandas as pd
 from bs4 import BeautifulSoup
 
+from utils import constants
+
 class HeaderExtractor:
 
-    def extract_text_from_section(self,section):
+    def extract_text_from_section(self, section) -> str:
         return ' '.join(section.stripped_strings)
-
 
     def extract_section_info(self, soup):
         section_data = {}
@@ -21,7 +22,6 @@ class HeaderExtractor:
                     section_text = self.extract_text_from_section(sec)
                     section_data[section_number] = {'header': header_text, 'text': section_text}
         return section_data
-
 
     def process_xml(self, xml_file):
         with open(xml_file, 'r', encoding='utf-8') as file:
@@ -66,8 +66,7 @@ class HeaderExtractor:
 
             return judgement_data
 
-
-    def process_xml_files_in_folder(self,folder_path):
+    def process_xml_files_in_folder(self, folder_path):
         all_judgements = []
         file_counter = 0
 
@@ -85,12 +84,9 @@ class HeaderExtractor:
 
         return all_judgements
 
-    def extract_headers(self, folder_path):
-        # Specify the folder containing the XML files
-        folder_path = "C:\\Users\\Chloe\\Documents\\MaastrichtLaw&Tech\\Summarization\\unzip_data\\2021"
-
+    def extract_headers(self):
         # Process the XML files and extract the data
-        all_judgements = self.process_xml_files_in_folder(folder_path)
+        all_judgements = self.process_xml_files_in_folder(constants.header_data_folder)
 
         # Convert the extracted data to a DataFrame
         if all_judgements:
@@ -98,6 +94,6 @@ class HeaderExtractor:
             # Display the DataFrame
             print(df)
             # Optionally save the DataFrame to a CSV file
-            df.to_csv('judgements_data_2021.csv', index=False)
+            df.to_csv(constants.header_data_save_path, index=False)
         else:
             print("No valid judgements found in the XML files.")
