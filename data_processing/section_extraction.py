@@ -178,3 +178,6 @@ class SectionExtractor:
             df = pd.DataFrame(filtered_results, columns=column_names)
 
             return df
+
+    def extract_sections(self, input_path):
+        pass

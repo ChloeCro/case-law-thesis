@@ -32,21 +32,7 @@ class DataProcessing:
         self.full_text_extractor = full_text_extraction.FullTextExtractor()
         self.section_extractor = section_extraction.SectionExtractor()
 
-    def header_extraction(self) -> pd.DataFrame:
-        header_df = self.header_extractor.extract_headers()
-        return header_df
-
-    def full_text_extraction(self) -> pd.DataFrame:
-        pass
-        # fulltext_df = self.full_text_extractor.extract_fulltext()
-        # return fulltext_df
-
-    def section_extraction(self) -> pd.DataFrame:
-        pass
-        # section_df = self.section_extractor.extract_sections()
-        # return section_df
-
-    def data_process_selector(self, method):
+    def data_process_selector(self, method, input_path):
         """
         Selects and executes a data processing method based on the provided method identifier. Depending on the method
         chosen, the function extracts different types of data, saves the results to a CSV file, and logs the outcome.
@@ -54,6 +40,7 @@ class DataProcessing:
             1: Extracts headers and saves them to a CSV file at the specified path.
             2: Extracts full text and saves it to a CSV file at the specified path.
             3: Extracts sections and saves them to a CSV file at the specified path.
+        :param input_path: The path to the file to be processed.
         :return: The function performs data extraction and saves the results to a CSV file.
         """
         extracted_df = None
@@ -61,11 +48,11 @@ class DataProcessing:
         match method:
             case 1:
                 logger.info("Start header extraction process...")
-                extracted_df = self.header_extraction()
+                extracted_df = self.header_extractor.extract_headers(input_path)
             case 2:
-                extracted_df = self.full_text_extraction()
+                extracted_df = self.full_text_extractor.extract_fulltext(input_path)  # TODO: Implement
             case 3:
-                extracted_df = self.section_extraction()
+                extracted_df = self.section_extractor.extract_sections(input_path)  # TODO: Implement
 
         if extracted_df is not None and not extracted_df.empty:
             extracted_df.to_csv(constants.EXTRACTED_DATA_SAVE_PATH, index=False)  # TODO: make this filename dynamic
@@ -90,7 +77,7 @@ if __name__ == '__main__':
                             '   "procesverloop", "overwegingen", and "beslissing".'
                         )
                         )
-    parser.add_argument('--input', type=str, default=constants.METADATA_PATH.format(year=2022),
+    parser.add_argument('--input', type=str, default=constants.RAW_DIR.format(year=2022),
                         help="The path to the input data CSV file")
     parser.add_argument('--multi', action='store_true', help="Use multiprocessing?")
 
@@ -99,6 +86,6 @@ if __name__ == '__main__':
     # Initialize the data processing object and process data
     logger.info("Start extraction pipeline...")
     data_processor = DataProcessing()
-    data_processor.data_process_selector(args.method)
+    data_processor.data_process_selector(args.method, args.input)
 
     logger.info("Extraction pipeline successfully finished!")

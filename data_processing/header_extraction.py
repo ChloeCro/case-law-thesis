@@ -3,6 +3,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 
 from utils import constants, logger
+from tqdm import tqdm
 
 logger = logger.get_logger(constants.EXTRACTION_LOGGER_NAME)
 
@@ -147,7 +148,7 @@ class HeaderExtractor:
         file_counter = 0
 
         # Loop over all files in the specified folder
-        for filename in os.listdir(folder_path):
+        for filename in tqdm(os.listdir(folder_path), desc="Processing XML files for header extraction"):
             # Check if the file has a .xml extension
             if filename.endswith('.xml'):
                 # Construct the full file path
@@ -168,14 +169,14 @@ class HeaderExtractor:
         # Return the list containing the extracted data from all processed files
         return all_judgements
 
-    def extract_headers(self):
+    def extract_headers(self, input_path):
         """
         Extracts legal judgement headers from XML files in a specified folder and converts the extracted data into a
         DataFrame.
         :return: Saves the resulting DataFrame  to a CSV file specified in the constants.
         """
         # Process all XML files in the specified folder and extract judgement data
-        all_judgements = self.process_xml_files_in_folder(constants.HEADER_DATA_INPUT_PATH)
+        all_judgements = self.process_xml_files_in_folder(input_path)
 
         # Check if any judgement data was extracted
         if all_judgements:
