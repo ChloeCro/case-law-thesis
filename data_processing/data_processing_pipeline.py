@@ -17,7 +17,7 @@ class DataProcessing:
             section_extractor (SectionExtractor): Extracts specific sections of the documents.
 
         Methods:
-            data_process_selector(method: int) -> TODO Any:
+            data_process_selector(method: int):
                 Selects and applies the appropriate data processing method based on the given method number.
                 - method 1: Header Extraction
                 - method 2: Full Text Extraction
@@ -60,7 +60,6 @@ class DataProcessing:
                 extracted_sections_df = self.section_extraction()
                 extracted_sections_df.to_csv(constants.section_data_save_path, index=False)
                 logger.info(f"CSV with extracted headers saved to {constants.section_data_save_path}!")
-
 
 
 if __name__ == '__main__':
