@@ -26,6 +26,4 @@ MERGE_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'merge_patterns.txt')
 SPLIT_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'split_patterns.txt')
 SECTION_DATA_PATH = os.path.join(DATA_DIR, 'creation', 'sectioned_data.csv')
 HEADER_DATA_INPUT_PATH = "C:\\Users\\Chloe\\Documents\\MaastrichtLaw&Tech\\Summarization\\unzip_data\\2021"
-HEADER_DATA_SAVE_PATH = "C:\\Users\\Chloe\\PycharmProjects\\case-law-thesis\\data\\judgements_data_2021.csv"
-FULLTEXT_DATA_SAVE_PATH = ""
-SECTION_DATA_SAVE_PATH = ""
+EXTRACTED_DATA_SAVE_PATH = "C:\\Users\\Chloe\\PycharmProjects\\case-law-thesis\\data\\judgements_data_2021.csv"

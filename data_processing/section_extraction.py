@@ -13,9 +13,6 @@ from utils import constants
 
 class SectionExtractor:
 
-    def __init__(self):
-        pass
-
     def is_valid_tag(self, tag):
         return tag.name != 'title'
 

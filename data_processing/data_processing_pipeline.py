@@ -51,40 +51,45 @@ class DataProcessing:
         Selects and executes a data processing method based on the provided method identifier. Depending on the method
         chosen, the function extracts different types of data, saves the results to a CSV file, and logs the outcome.
         :param method: An integer representing the data processing method to execute. The options are:
-            1: Extracts headers and saves them to a CSV file at the path specified in `constants.header_data_save_path`.
-            2: Extracts full text and saves it to a CSV file at the path specified in `constants.fulltext_data_save_path`.
-            3: Extracts sections and saves them to a CSV file at the path specified in `constants.section_data_save_path`.
+            1: Extracts headers and saves them to a CSV file at the specified path.
+            2: Extracts full text and saves it to a CSV file at the specified path.
+            3: Extracts sections and saves them to a CSV file at the specified path.
         :return: The function performs data extraction and saves the results to a CSV file.
         """
+        extracted_df = None
+
         match method:
             case 1:
-                extracted_header_df = self.header_extraction()
-                extracted_header_df.to_csv(constants.HEADER_DATA_SAVE_PATH, index=False)
-                logger.info(f"CSV with extracted headers saved to {constants.HEADER_DATA_SAVE_PATH}!")
+                logger.info("Start header extraction process...")
+                extracted_df = self.header_extraction()
             case 2:
-                extracted_fulltext_df = self.full_text_extraction()
-                extracted_fulltext_df.to_csv(constants.FULLTEXT_DATA_SAVE_PATH, index=False)
-                logger.info(f"CSV with extracted headers saved to {constants.FULLTEXT_DATA_SAVE_PATH}!")
+                extracted_df = self.full_text_extraction()
             case 3:
-                extracted_sections_df = self.section_extraction()
-                extracted_sections_df.to_csv(constants.SECTION_DATA_SAVE_PATH, index=False)
-                logger.info(f"CSV with extracted headers saved to {constants.SECTION_DATA_SAVE_PATH}!")
+                extracted_df = self.section_extraction()
+
+        if extracted_df is not None and not extracted_df.empty:
+            extracted_df.to_csv(constants.EXTRACTED_DATA_SAVE_PATH, index=False)
+            logger.info(f"CSV with extracted headers saved to {constants.EXTRACTED_DATA_SAVE_PATH}!")
+        else:
+            error_message = "Data extraction failed: the resulting DataFrame is empty or None."
+            logger.error(error_message)
+            raise ValueError(error_message)
 
 
 if __name__ == '__main__':
     # create the argument parser, add the arguments
     parser = argparse.ArgumentParser(description='Rechtspraak Data Processing')
-    parser.add_argument('--method', type=int, choices=range(1, 3), default=1,
-        help=(
-            'Specify processing method (1-3): '
-            '1 = Header Extraction: creates a dataframe with a column that holds a dictionary with section header and '
-            'section text, '
-            '2 = Full Text Extraction: creates a dataframe with a column that contains the document full text (composed'
-            ' from "procesverloop", "overwegingen", and "beslissing", '
-            '3 = Main Section Extraction: creates a dataframe with 3 columns that contains text from "procesverloop", '
-            '"overwegingen", and "beslissing"='
-        )
-    )
+    parser.add_argument('--method', type=int, choices=range(1, 4), default=1,
+                        help=(
+                            'Specify processing method (1-3): '
+                            '1 = Header Extraction: creates a dataframe with a column that holds a dictionary with '
+                            '   section header and section text, '
+                            '2 = Full Text Extraction: creates a dataframe with a column that contains the document '
+                            '   full text (composed from "procesverloop", "overwegingen", and "beslissing", '
+                            '3 = Main Section Extraction: creates a dataframe with 3 columns that contains text from '
+                            '   "procesverloop", "overwegingen", and "beslissing".'
+                        )
+                        )
     parser.add_argument('--input', type=str, default=constants.METADATA_PATH.format(year=2022),
                         help="The path to the input data CSV file")
     parser.add_argument('--multi', action='store_true', help="Use multiprocessing?")
@@ -92,6 +97,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Initialize the data processing object and process data
+    logger.info("Start extraction pipeline...")
     data_processor = DataProcessing()
     data_processor.data_process_selector(args.method)
 
