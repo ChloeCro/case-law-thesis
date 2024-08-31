@@ -8,6 +8,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, davies_bouldin_score
 from sklearn.decomposition import PCA
 from typing import Tuple
+from tqdm import tqdm
 
 from utils import constants, logger_script
 
@@ -149,10 +150,12 @@ class TfidfKMeansClusterer:
         :return: A DataFrame with headers and their predicted cluster labels.
         """
         # Extract 'header' and 'cluster' values from the labeled DataFrame
+        logger.info("Extract labeled data from CSV file...")
         labeled_headers = labeled_df['Header'].str.lower().tolist()
         labeled_clusters = labeled_df['Cluster'].tolist()
 
         # Fit the vectorizer on the entire labeled corpus
+        logger.info("Fit Tf-idf vectorizer on labeled headers")
         self.vectorizer.fit(labeled_headers)
 
         # Initialize empty dictionary to store refined TF-IDF vectors for each cluster
@@ -160,7 +163,8 @@ class TfidfKMeansClusterer:
         unique_clusters = sorted(set(labeled_clusters))
 
         # Process each cluster separately
-        for cluster in unique_clusters:
+        logger.info("Generate clusters from labeled data...")
+        for cluster in tqdm(unique_clusters, desc="Processing clusters"):
             # Get headers for this cluster
             cluster_indices = [i for i, label in enumerate(labeled_clusters) if label == cluster]
             cluster_headers = [labeled_headers[i] for i in cluster_indices]
@@ -178,12 +182,15 @@ class TfidfKMeansClusterer:
             refined_tfidf_vectors[cluster] = refined_tfidf_matrix
 
         # Extract 'header' values from the nested dictionaries
+        logger.info("Extracting the headers from input dataframe...")
         header_values = self.extract_headers_for_tfidf(input_df)
 
         # Compute the TF-IDF vectors for the extracted headers
+        logger.info("Compute Tf-idf vectors for extracted headers...")
         tfidf_matrix = self.vectorizer.transform(header_values)
 
         # Calculate the distance from each header to each cluster's refined vector
+        logger.info("Calculating distances between headers and clusters and assigning headers to clusters...")
         distance_matrix = np.zeros((len(header_values), len(refined_tfidf_vectors)))
         for i, refined_vector in refined_tfidf_vectors.items():
             refined_vector_dense = np.squeeze(np.asarray(refined_vector))
@@ -196,6 +203,7 @@ class TfidfKMeansClusterer:
         result_df = pd.DataFrame({'Header': header_values, 'Cluster': cluster_labels})
 
         # Evaluate the quality of the clustering
+        logger.info("Evaluating the clusters...")
         self.evaluate_clusters(tfidf_matrix, cluster_labels)
 
         return result_df
