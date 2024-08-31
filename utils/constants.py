@@ -15,6 +15,8 @@ DATA_DIR = os.path.join(REPO_PATH, 'data')
 METADATA_DIR = os.path.join(DATA_DIR, 'metadata')
 RAW_DIR = os.path.join(DATA_DIR, 'raw', '{year}')
 DATA_PROCESSING_DIR = os.path.join(REPO_PATH, 'data_processing')
+SEGMENTATION_DIR = os.path.join(REPO_PATH, 'segmentation')
+SEGMENTATION_RESULTS_DIR = os.path.join(SEGMENTATION_DIR, 'results')
 
 # FILE PATHS
 METADATA_PATH = os.path.join(METADATA_DIR, '{year}_rs_data_t.csv')

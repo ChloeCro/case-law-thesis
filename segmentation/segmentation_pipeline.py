@@ -1,5 +1,7 @@
+import os
 import argparse
 import pandas as pd
+from datetime import datetime
 
 import tfidf_kmeans, se3, sbert_spectral, llm
 from utils import constants, logger, util_functions
@@ -86,6 +88,16 @@ class SegmentationPipeline:
                 pass
 
         if extracted_df is not None and not extracted_df.empty:
+            # Generate the current timestamp
+            current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+            # Create the filename using the method number and the current time
+            filename = f"{method}_{current_time}.csv"
+            # Combine the folder path and the filename
+            file_path = os.path.join(constants.SEGMENTATION_RESULTS_DIR, filename)
+            # Save the DataFrame to the CSV file
+            extracted_df.to_csv(file_path, index=False)
+            logger.info(f"CSV with {method_name} saved to {file_path}!")
+
             extracted_df.to_csv(constants.EXTRACTED_DATA_SAVE_PATH, index=False)  # TODO: make this filename dynamic
             logger.info(f"CSV with {method_name} saved to {constants.EXTRACTED_DATA_SAVE_PATH}!")
         else:
