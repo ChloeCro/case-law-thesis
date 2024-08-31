@@ -1,4 +1,6 @@
 import os
+
+import bs4
 import pandas as pd
 from bs4 import BeautifulSoup
 
@@ -30,7 +32,7 @@ class HeaderExtractor:
             DataFrame, and optionally saves it to a CSV file.
     """
     @staticmethod
-    def extract_text_from_section(section) -> str:
+    def extract_text_from_section(section: bs4.Tag) -> str:
         """
         Extracts and concatenates all stripped strings from a given HTML/XML section.
         :param section: A BeautifulSoup tag object representing a section.
@@ -38,7 +40,7 @@ class HeaderExtractor:
         """
         return ' '.join(section.stripped_strings)
 
-    def extract_section_info(self, soup):
+    def extract_section_info(self, soup: bs4.BeautifulSoup) -> dict:
         """
         Extracts information from each section in the provided BeautifulSoup object, including section number, header
         text, and the full text of the section.
@@ -74,7 +76,7 @@ class HeaderExtractor:
         # Return the dictionary containing all extracted section data
         return section_data
 
-    def process_xml(self, xml_file):
+    def process_xml(self, xml_file: str) -> dict or None:
         """
         Processes a single XML file to extract relevant legal judgement information, including global attributes
         and section-specific data.
@@ -136,7 +138,7 @@ class HeaderExtractor:
             # Return the dictionary containing all the extracted data
             return judgement_data
 
-    def process_xml_files_in_folder(self, folder_path):
+    def process_xml_files_in_folder(self, folder_path: str) -> list:
         """
         Processes all XML files within a specified folder, extracting legal judgement information from each file.
         :param folder_path: The path to the folder containing XML files.
@@ -169,7 +171,7 @@ class HeaderExtractor:
         # Return the list containing the extracted data from all processed files
         return all_judgements
 
-    def extract_headers(self, input_path):
+    def extract_headers(self, input_path: str) -> pd.DataFrame or None:
         """
         Extracts legal judgement headers from XML files in a specified folder and converts the extracted data into a
         DataFrame.
