@@ -4,9 +4,9 @@ import pandas as pd
 
 from typing import List
 from bs4 import BeautifulSoup
-from utils import constants, logger
+from utils import constants, logger_script
 
-logger = logger.get_logger(constants.EXTRACTION_LOGGER_NAME)
+logger = logger_script.get_logger(constants.EXTRACTION_LOGGER_NAME)
 
 
 class SectionExtractor:

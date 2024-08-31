@@ -4,9 +4,9 @@ import pandas as pd
 from datetime import datetime
 
 import header_extraction, full_text_extraction, section_extraction
-from utils import constants, logger, util_functions
+from utils import constants, logger_script, util_functions
 
-logger = logger.get_logger(constants.EXTRACTION_LOGGER_NAME)
+logger = logger_script.get_logger(constants.EXTRACTION_LOGGER_NAME)
 
 
 class DataProcessing:

@@ -9,7 +9,7 @@ from sklearn.metrics import silhouette_score, davies_bouldin_score
 from sklearn.decomposition import PCA
 from typing import Tuple
 
-from utils import constants, logger
+from utils import constants, logger_script
 
 logger = logger.get_logger(constants.SEGMENTATION_LOGGER_NAME)
 

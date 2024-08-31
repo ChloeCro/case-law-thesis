@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 
 import tfidf_kmeans, se3, sbert_spectral, llm
-from utils import constants, logger, util_functions
+from utils import constants, logger_script, util_functions
 
 logger = logger.get_logger(constants.SEGMENTATION_LOGGER_NAME)
 

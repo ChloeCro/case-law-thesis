@@ -1,13 +1,13 @@
 import os
-
 import bs4
+import logging
 import pandas as pd
 from bs4 import BeautifulSoup
 
-from utils import constants, logger
+from utils import constants, logger_script
 from tqdm import tqdm
 
-logger = logger.get_logger(constants.EXTRACTION_LOGGER_NAME)
+logger = logger_script.get_logger(constants.EXTRACTION_LOGGER_NAME)
 
 
 class HeaderExtractor:
@@ -162,7 +162,7 @@ class HeaderExtractor:
                 file_counter += 1
                 # Log the start of processing for the current file
                 if file_counter % 10000 == 0:
-                    logger.info(f"Processing file {file_counter}: {filename}")
+                    logger.info(f"Processing {file_counter} files!")
                 # Process the XML file to extract judgement data
                 judgement_data = self.process_xml(file_path)
                 # If data is successfully extracted, add it to the list
