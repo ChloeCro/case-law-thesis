@@ -21,8 +21,8 @@ class DataProcessing:
     Methods:
         data_process_selector(method: int):
             Selects and applies the appropriate data processing method based on the given method number.
-            - method 1: Full Text Extraction
-            - method 2: Section Extraction
+            - method 1: Full Text Extraction TODO
+            - method 2: Section Extraction TODO
             - method 3: Header Extraction
     """
 
