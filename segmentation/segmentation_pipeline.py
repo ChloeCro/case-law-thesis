@@ -9,25 +9,33 @@ logger = logger.get_logger(constants.SEGMENTATION_LOGGER_NAME)
 
 class SegmentationPipeline:
     """
-        A class dedicated to extract useful data from Rechtspraak case documents and saves them in a CSV.
+    A class dedicated to extracting useful data from Rechtspraak case documents and saving them in a CSV file.
 
-        Attributes:
-            tfidf_kmeans (TfidfKMeansClusterer): Extracts header information from documents.
-            se3_segmenter (Se3Clusterer): Extracts the full text content from documents.
-            transformer_spectral (TFSpectralClusterer): Extracts specific sections of the documents.
-            llm_clusterer (LLMClusterer):
+    This pipeline applies various data processing techniques to legal case documents, utilizing different clustering
+    and segmentation methods to extract headers, full text, or specific sections based on the provided method.
 
-        Methods:
-            data_process_selector(method: int):
-                Selects and applies the appropriate data processing method based on the given method number.
-                - method 1: Header Extraction
-                - method 2: Full Text Extraction
-                - method 3: Section Extraction
-                - method 4:
-                - method 5:
+    Attributes:
+        tfidf_kmeans (TfidfKMeansClusterer): Extracts header information and full text content from documents using
+                                                TF-IDF and K-Means clustering.
+        se3_segmenter (Se3Clusterer): Extracts the full text content from documents using a self-segmentation approach.
+        transformer_spectral (TFSpectralClusterer): Extracts specific sections of the documents using Transformer
+                                                    embeddings combined with Spectral Clustering.
+        llm_clusterer (LLMClusterer): A placeholder for data extraction and classification using a Large Language Model.
+
+    Methods:
+        segmentation_process_selector(method: int, input_path: str):
+            Selects and applies the appropriate data processing method based on the given method number.
+            - method 1: Header Extraction using TF-IDF and K-Means with seed words.
+            - method 2: Full Text Extraction using TF-IDF and K-Means with labeled data.
+            - method 3: Section Extraction using Se3 self-segmentation.
+            - method 4: Section Extraction using S-BERT and Spectral Clustering.
+            - method 5: Section Extraction using LLM-based classification.
     """
 
     def __init__(self):
+        """
+        Initializes the SegmentationPipeline with the specific components for clustering and segmentation methods.
+        """
         self.tfidf_kmeans = tfidf_kmeans.TfidfKMeansClusterer()
         self.se3_segmenter = se3.Se3Clusterer()
         self.transformer_spectral = sbert_spectral.TFSpectralClusterer()
@@ -38,9 +46,11 @@ class SegmentationPipeline:
         Selects and executes a data processing method based on the provided method identifier. Depending on the method
         chosen, the function extracts different types of data, saves the results to a CSV file, and logs the outcome.
         :param method: An integer representing the data processing method to execute. The options are:
-            1: Extracts headers and saves them to a CSV file at the specified path.
-            2: Extracts full text and saves it to a CSV file at the specified path.
-            3: Extracts sections and saves them to a CSV file at the specified path.
+                1: Extracts headers using TF-IDF and K-Means with seed words and saves them to a CSV file.
+                2: Extracts full text using TF-IDF and K-Means with labeled data and saves it to a CSV file.
+                3: Extracts sections using Se3 self-segmentation and saves them to a CSV file.
+                4: Extracts sections using S-BERT and Spectral Clustering and saves them to a CSV file.
+                5: Extracts sections using LLM-based classification and saves them to a CSV file.
         :param input_path: The path to the file to be processed.
         :return: The function performs data extraction and saves the results to a CSV file.
         """
@@ -83,7 +93,7 @@ if __name__ == '__main__':
     # create the argument parser, add the arguments
     parser = argparse.ArgumentParser(description='Rechtspraak Segmentation Pipeline',
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--method', type=int, choices=range(1, 6), default=1,
+    parser.add_argument('--method', type=int, choices=range(1, 6), default=1,  # TODO: update this help string
                         help=(
                             'Specify processing method (1-5):\n'
                             '1 = TF-IDF + K-MEANS with seed words: creates a dataframe with a column that holds a '
