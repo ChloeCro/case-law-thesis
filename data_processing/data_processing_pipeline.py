@@ -1,5 +1,7 @@
+import os
 import argparse
 import pandas as pd
+from datetime import datetime
 
 import header_extraction, full_text_extraction, section_extraction
 from utils import constants, logger, util_functions
@@ -45,11 +47,8 @@ class DataProcessing:
         """
         extracted_df = pd.DataFrame()
         method_name = ''
+
         logger.info("Start header extraction process...")
-
-        # Load the input dataframe
-        # df_to_process = util_functions.load_csv_to_df(input_path) TODO: load df here instead of passing string
-
         match method:
             case 1:
                 method_name = 'fulltext'
@@ -62,8 +61,15 @@ class DataProcessing:
                 extracted_df = self.header_extractor.extract_headers(input_path)
 
         if extracted_df is not None and not extracted_df.empty:
-            extracted_df.to_csv(constants.EXTRACTED_DATA_SAVE_PATH, index=False)  # TODO: make this filename dynamic
-            logger.info(f"CSV with {method_name} saved to {constants.EXTRACTED_DATA_SAVE_PATH}!")
+            # Generate the current timestamp
+            current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+            # Create the filename using the method name and the current time
+            filename = f"{method_name}_{current_time}.csv"
+            # Combine the folder path and the filename
+            file_path = os.path.join(constants.METADATA_DIR, filename)
+            # Save the DataFrame to the CSV file
+            extracted_df.to_csv(file_path, index=False)
+            logger.info(f"CSV with {method_name} saved to {file_path}!")
         else:
             error_message = "Data extraction failed: the resulting DataFrame is empty or None."
             logger.error(error_message)
