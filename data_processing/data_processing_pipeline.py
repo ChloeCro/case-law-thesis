@@ -11,17 +11,17 @@ class DataProcessing:
     """
         A class dedicated to extract useful data from Rechtspraak case documents and saves them in a CSV.
 
-        Attributes:
-            full_text_extractor (FullTextExtractor): Extracts the full text content from documents.
-            section_extractor (SectionExtractor): Extracts specific sections of the documents.
-            header_extractor (HeaderExtractor): Extracts header information additional to sections from documents.
+    Attributes:
+        full_text_extractor (FullTextExtractor): Extracts the full text content from documents.
+        section_extractor (SectionExtractor): Extracts specific sections of the documents.
+        header_extractor (HeaderExtractor): Extracts header information additional to sections from documents.
 
-        Methods:
-            data_process_selector(method: int):
-                Selects and applies the appropriate data processing method based on the given method number.
-                - method 1: Full Text Extraction
-                - method 2: Section Extraction
-                - method 3: Header Extraction
+    Methods:
+        data_process_selector(method: int):
+            Selects and applies the appropriate data processing method based on the given method number.
+            - method 1: Full Text Extraction
+            - method 2: Section Extraction
+            - method 3: Header Extraction
     """
 
     def __init__(self):
