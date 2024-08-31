@@ -58,16 +58,17 @@ class SegmentationPipeline:
         method_name = ''
 
         # Load the input dataframe
-        # df_to_process = util_functions.load_csv_to_df(input_path) TODO: load df here instead of passing string
+        df_to_process = util_functions.load_csv_to_df(input_path)
 
         logger.info("Start segmentation process...")
         match method:
             case 1:
                 method_name = 'Tf-idf and K-means clusters using seed words'
-                extracted_df = self.tfidf_kmeans.extract_headers()
+                extracted_df = self.tfidf_kmeans.guided_kmeans_with_seed_words(df_to_process)
             case 2:
                 method_name = 'Tf-idf and K-means clusters using labeled data'
-                extracted_df = self.tfidf_kmeans.extract_fulltext(input_path)  # TODO: Implement
+                labeled_df = util_functions.load_csv_to_df(constants.LABELED_HEADER_PATH)
+                extracted_df = self.tfidf_kmeans.guided_kmeans_with_labeled(df_to_process, labeled_df)
             case 3:
                 method_name = 'Se3 self-segmentation clusters'
                 extracted_df = self.se3_segmenter.extract_sections(input_path)  # TODO: Implement
