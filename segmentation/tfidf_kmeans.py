@@ -7,6 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, davies_bouldin_score
 from sklearn.decomposition import PCA
+from typing import Tuple
 
 from utils import constants, logger
 
@@ -35,7 +36,7 @@ class TfidfKMeansClusterer:
         self.vectorizer = TfidfVectorizer(stop_words=self.stop_words)
 
     @staticmethod
-    def extract_headers_for_tfidf(df):
+    def extract_headers_for_tfidf(df: pd.DataFrame) -> list:
         """
         Extracts 'header' values from the 'sections' nested dictionaries within the DataFrame.
         :param df: Input DataFrame containing a 'sections' column with nested dictionaries.
@@ -49,7 +50,7 @@ class TfidfKMeansClusterer:
         return header_values
 
     @staticmethod
-    def apply_kmeans(init_value, tfidf_matrix):
+    def apply_kmeans(init_value: np.ndarray[int], tfidf_matrix: np.ndarray[int]) -> np.ndarray[int]:
         """
         Applies K-Means clustering to the TF-IDF matrix using the provided seed matrix for initialization.
         :param init_value: The seed matrix used to initialize the K-Means centroids.
@@ -62,7 +63,7 @@ class TfidfKMeansClusterer:
         return cluster_labels
 
     @staticmethod
-    def evaluate_clusters(tfidf_matrix, cluster_labels):
+    def evaluate_clusters(tfidf_matrix: np.array, cluster_labels: np.ndarray[int]) -> Tuple[float, float]:
         """
         Evaluates the quality of the clusters using Silhouette Score and Davies-Bouldin Index.
         :param tfidf_matrix: The TF-IDF matrix representing the text data.
@@ -71,12 +72,10 @@ class TfidfKMeansClusterer:
         """
         silhouette_avg = silhouette_score(tfidf_matrix, cluster_labels)
         davies_bouldin = davies_bouldin_score(tfidf_matrix.toarray(), cluster_labels)
-
-        logger.info(f"Silhouette Score: {silhouette_avg:.4f}")
-        logger.info(f"Davies-Bouldin Index: {davies_bouldin:.4f}")
+        return silhouette_avg, davies_bouldin
 
     @staticmethod
-    def generate_tfidf_kmeans_scatter_plot(tfidf_matrix, cluster_labels):
+    def generate_tfidf_kmeans_scatter_plot(tfidf_matrix: np.array, cluster_labels: list):
         """
         Generates a 2D scatter plot of the TF-IDF matrix data points, colored by their cluster labels.
         :param tfidf_matrix: The TF-IDF matrix representing the text data.
@@ -98,7 +97,7 @@ class TfidfKMeansClusterer:
         plt.legend()
         plt.show()  # TODO: add save statement
 
-    def guided_kmeans_with_seed_words(self, input_df) -> pd.DataFrame:
+    def guided_kmeans_with_seed_words(self, input_df: pd.DataFrame) -> pd.DataFrame:
         """
         Applies K-Means clustering to the headers in the input DataFrame using seed words to guide the clustering.
         :param input_df: The input DataFrame containing the 'sections' column with nested dictionaries.
@@ -129,11 +128,13 @@ class TfidfKMeansClusterer:
         })
 
         # Evaluate the quality of the clustering
-        self.evaluate_clusters(tfidf_matrix, cluster_labels)
+        silhouette, db_index = self.evaluate_clusters(tfidf_matrix, cluster_labels)
+        logger.info(f"Silhouette Score: {silhouette:.4f}")
+        logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
 
         return result_df
 
-    def guided_kmeans_with_labeled(self, input_df, labeled_df) -> pd.DataFrame:
+    def guided_kmeans_with_labeled(self, input_df: pd.DataFrame, labeled_df: pd.DataFrame) -> pd.DataFrame:
         """
         Applies K-Means clustering to the headers in the input DataFrame using refined TF-IDF vectors
         derived from labeled data.
