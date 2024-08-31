@@ -30,8 +30,6 @@ SUBSET_PATH = os.path.join(METADATA_DIR, 'subset.csv')
 COMBINED_SECTION_PATH = os.path.join(METADATA_DIR, 'combined_section.csv')
 SUBSET_SECTION_PATH = os.path.join(METADATA_DIR, 'subset_section.csv')
 SECTION_DATA_PATH = os.path.join(DATA_DIR, 'creation', 'sectioned_data.csv')
-
-
 HEADER_DATA_INPUT_PATH = "C:\\Users\\Chloe\\Documents\\MaastrichtLaw&Tech\\Summarization\\unzip_data\\2021"
 EXTRACTED_DATA_SAVE_PATH = "C:\\Users\\Chloe\\PycharmProjects\\case-law-thesis\\data\\judgements_data_2021.csv"
 

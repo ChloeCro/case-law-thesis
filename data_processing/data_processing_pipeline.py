@@ -91,7 +91,7 @@ if __name__ == '__main__':
                             'section header and section text. '
                         )
                         )
-    parser.add_argument('--input', type=str, default=constants.RAW_DIR.format(year=2022),  # TODO: Make input dynamic
+    parser.add_argument('--input', type=str, default=constants.RAW_DIR.format(year=2022),
                         help="The path to the input data CSV file")
 
     args = parser.parse_args()
