@@ -88,7 +88,7 @@ class SegmentationPipeline:
             extracted_df.to_csv(constants.EXTRACTED_DATA_SAVE_PATH, index=False)  # TODO: make this filename dynamic
             logger.info(f"CSV with {method_name} saved to {constants.EXTRACTED_DATA_SAVE_PATH}!")
         else:
-            error_message = "Data extraction failed: the resulting DataFrame is empty or None."
+            error_message = "Segmentation failed: the resulting DataFrame is empty or None."
             logger.error(error_message)
             raise ValueError(error_message)
 
@@ -97,17 +97,16 @@ if __name__ == '__main__':
     # create the argument parser, add the arguments
     parser = argparse.ArgumentParser(description='Rechtspraak Segmentation Pipeline',
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--method', type=int, choices=range(1, 6), default=1,  # TODO: update this help string
+    parser.add_argument('--method', type=int, choices=range(1, 6), default=1,
                         help=(
-                            'Specify processing method (1-5):\n'
-                            '1 = TF-IDF + K-MEANS with seed words: creates a dataframe with a column that holds a '
-                            'dictionary with section header and section text,\n'
-                            '2 = TF-IDF + K-MEANS with labels: ,\n'
-                            '3 = Self-Segmentation (Se3): ,\n'
-                            '4 = S-BERT + Spectral Clustering: ,\n'
-                            '5 = LLM: .'
-                        )
-                        )
+                            'Specify clustering method (1-5):\n'
+                            '1 = TF-IDF + K-MEANS with seed words: clusters headers based on seed word groups,\n'
+                            '2 = TF-IDF + K-MEANS with labeled data: clusters full text based on pre-labeled data,\n'
+                            '3 = Self-Segmentation (Se3): clusters sections using the Se3 self-segmentation method,\n'
+                            '4 = S-BERT + Spectral Clustering: clusters sections using S-BERT embeddings combined '
+                            'with spectral clustering,\n'
+                            '5 = LLM-based clustering: clusters sections using a Large Language Model-based approach.'
+                        ))
     parser.add_argument('--input', type=str, default=constants.RAW_DIR.format(year=2022),
                         help="The path to the input data CSV file")
 
