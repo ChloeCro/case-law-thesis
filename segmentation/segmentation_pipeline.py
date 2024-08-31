@@ -97,9 +97,6 @@ class SegmentationPipeline:
             # Save the DataFrame to the CSV file
             extracted_df.to_csv(file_path, index=False)
             logger.info(f"CSV with {method_name} saved to {file_path}!")
-
-            extracted_df.to_csv(constants.EXTRACTED_DATA_SAVE_PATH, index=False)  # TODO: make this filename dynamic
-            logger.info(f"CSV with {method_name} saved to {constants.EXTRACTED_DATA_SAVE_PATH}!")
         else:
             error_message = "Segmentation failed: the resulting DataFrame is empty or None."
             logger.error(error_message)
