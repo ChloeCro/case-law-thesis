@@ -90,7 +90,7 @@ if __name__ == '__main__':
                             'dictionary with section header and section text,\n'
                             '2 = TF-IDF + K-MEANS with labels: ,\n'
                             '3 = Self-Segmentation (Se3): ,\n'
-                            '4 = SBERT + Spectral Clustering: ,\n'
+                            '4 = S-BERT + Spectral Clustering: ,\n'
                             '5 = LLM: .'
                         )
                         )
