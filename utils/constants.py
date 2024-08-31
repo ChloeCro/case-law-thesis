@@ -19,16 +19,19 @@ SEGMENTATION_DIR = os.path.join(REPO_PATH, 'segmentation')
 SEGMENTATION_RESULTS_DIR = os.path.join(SEGMENTATION_DIR, 'results')
 
 # FILE PATHS
+MERGE_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'merge_patterns.txt')
+SPLIT_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'split_patterns.txt')
+LABELED_HEADERS_FILE_PATH = os.path.join(SEGMENTATION_DIR, 'labeled_headers.csv')  # TODO: ADD
+
+# POTENTIALLY UNUSED?
 METADATA_PATH = os.path.join(METADATA_DIR, '{year}_rs_data_t.csv')
 COMBINED_PATH = os.path.join(METADATA_DIR, 'combined.csv')
 SUBSET_PATH = os.path.join(METADATA_DIR, 'subset.csv')
 COMBINED_SECTION_PATH = os.path.join(METADATA_DIR, 'combined_section.csv')
 SUBSET_SECTION_PATH = os.path.join(METADATA_DIR, 'subset_section.csv')
-MERGE_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'merge_patterns.txt')
-SPLIT_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'split_patterns.txt')
 SECTION_DATA_PATH = os.path.join(DATA_DIR, 'creation', 'sectioned_data.csv')
 
-LABELED_HEADERS_FILE_PATH = ""
+
 HEADER_DATA_INPUT_PATH = "C:\\Users\\Chloe\\Documents\\MaastrichtLaw&Tech\\Summarization\\unzip_data\\2021"
 EXTRACTED_DATA_SAVE_PATH = "C:\\Users\\Chloe\\PycharmProjects\\case-law-thesis\\data\\judgements_data_2021.csv"
 
