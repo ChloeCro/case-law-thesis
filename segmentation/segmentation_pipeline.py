@@ -77,14 +77,14 @@ class SegmentationPipeline:
                 extracted_df = self.tfidf_kmeans.guided_kmeans_with_labeled(df_to_process, labeled_df)
             case 3:
                 method_name = 'Se3 self-segmentation clusters'
-                extracted_df = self.se3_segmenter.process_se3_segmentation(input_path)  # TODO: Implement
+                extracted_df = self.se3_segmenter.process_se3_segmentation(input_path)  # TODO: Implement (needs fulltext)
             case 4:
                 method_name = 'S-BERT and Spectral Clustering clusters'
-                extracted_df = self.transformer_spectral.process_sbert_spectral(input_path)  # TODO: Implement
+                extracted_df = self.transformer_spectral.process_sbert_spectral(input_path)  # TODO: Implement (needs fulltext)
                 pass
             case 5:
                 method_name = 'LLM classification'
-                extracted_df = self.llm_clusterer.process_llm_segmentation(input_path)  # TODO: Implement
+                extracted_df = self.llm_clusterer.process_llm_segmentation(input_path)  # TODO: Implement (needs sections)
                 pass
 
         if extracted_df is not None and not extracted_df.empty:
