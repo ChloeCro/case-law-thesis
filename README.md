@@ -1,1 +1,1 @@
-# case-law-thesis
+# <span style="font-size: 1.5em;">Optimizing Dutch Legal Text Segmentation and Summarization: </span><span style="font-size: 1em;"><em> A Low-Resource Approach to Enhancing Relevance Extraction in Complex Case Law</em></span>
