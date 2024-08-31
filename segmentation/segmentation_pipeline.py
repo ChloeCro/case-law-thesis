@@ -66,6 +66,7 @@ class SegmentationPipeline:
         logger.info("Loading input data...")
         df_to_process = util_functions.load_csv_to_df(input_path)
 
+        # Determine the processing method and execute the corresponding segmentation technique.
         logger.info("Start segmentation process...")
         match method:
             case 1:

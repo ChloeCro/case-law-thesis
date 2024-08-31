@@ -23,6 +23,12 @@ MERGE_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'merge_patterns.txt')
 SPLIT_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'split_patterns.txt')
 LABELED_HEADERS_FILE_PATH = os.path.join(METADATA_DIR, 'labeled_headers.csv')
 HEADERS_PATH = os.path.join(METADATA_DIR, 'headers_{year}.csv')
+LLM_SYS_PROMPT_PATH = os.path.join(SEGMENTATION_DIR, 'system_prompt.txt')
+LLM_PROMPT_NL_PATH = os.path.join(SEGMENTATION_DIR, 'prompt_nl.txt')
+
+# COLUMNS
+SECTIONS_COL = 'section'
+LLM_RESPONSE_COL = 'llm_response'
 
 # POTENTIALLY UNUSED?
 METADATA_PATH = os.path.join(METADATA_DIR, '{year}_rs_data_t.csv')
@@ -51,3 +57,6 @@ SEED_WORDS_LIST = [
 ]
 
 ADDITIONAL_STOPWORDS = ['de', 'het', 'een', 'en', 'van', 'in', 'op', 'aan', 'met', 'voor', 'over', 'onder', 'tussen', 'door', 'uit', 'naar', 'bij']
+
+LEGAL_TOPIC_LIST = ['feiten en omstandigheden', 'eerdere juridische acties en beslissingen (tevens onderscheid tussen gedaagde, appellant en de verschillende juridische instanties zoals rechtbank, hof van beroep etc.)',
+                    'standpunten van appellant', 'standpunten van verweerder', 'juridische middelen', 'beoordeling door rechter/College', 'proceskosten']
