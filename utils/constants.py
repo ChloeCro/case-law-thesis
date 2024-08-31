@@ -22,6 +22,7 @@ SEGMENTATION_RESULTS_DIR = os.path.join(SEGMENTATION_DIR, 'results')
 MERGE_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'merge_patterns.txt')
 SPLIT_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'split_patterns.txt')
 LABELED_HEADERS_FILE_PATH = os.path.join(SEGMENTATION_DIR, 'labeled_headers.csv')  # TODO: ADD
+HEADERS_PATH = os.path.join(METADATA_DIR, 'headers_{year}.csv')
 
 # POTENTIALLY UNUSED?
 METADATA_PATH = os.path.join(METADATA_DIR, '{year}_rs_data_t.csv')

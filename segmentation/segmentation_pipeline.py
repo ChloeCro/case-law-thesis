@@ -63,7 +63,7 @@ class SegmentationPipeline:
         method_name = ''
 
         # Load the input dataframe
-        logger.inf("Loading input data...")
+        logger.info("Loading input data...")
         df_to_process = util_functions.load_csv_to_df(input_path)
 
         logger.info("Start segmentation process...")
@@ -77,14 +77,14 @@ class SegmentationPipeline:
                 extracted_df = self.tfidf_kmeans.guided_kmeans_with_labeled(df_to_process, labeled_df)
             case 3:
                 method_name = 'Se3 self-segmentation clusters'
-                extracted_df = self.se3_segmenter.extract_sections(input_path)  # TODO: Implement
+                extracted_df = self.se3_segmenter.process_se3_segmentation(input_path)  # TODO: Implement
             case 4:
                 method_name = 'S-BERT and Spectral Clustering clusters'
-                extracted_df = self.transformer_spectral.extract_sections(input_path)  # TODO: Implement
+                extracted_df = self.transformer_spectral.process_sbert_spectral(input_path)  # TODO: Implement
                 pass
             case 5:
                 method_name = 'LLM classification'
-                extracted_df = self.llm_clusterer.extract_sections(input_path)  # TODO: Implement
+                extracted_df = self.llm_clusterer.process_llm_segmentation(input_path)  # TODO: Implement
                 pass
 
         if extracted_df is not None and not extracted_df.empty:
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                             'with spectral clustering,\n'
                             '5 = LLM-based clustering: clusters sections using a Large Language Model-based approach.'
                         ))
-    parser.add_argument('--input', type=str, default=constants.RAW_DIR.format(year=2022),  # TODO: Make input dynamic
+    parser.add_argument('--input', type=str, default=constants.HEADERS_PATH.format(year=2022),  # TODO: Make input dynamic
                         help="The path to the input data CSV file")
 
     args = parser.parse_args()

@@ -11,7 +11,7 @@ from typing import Tuple
 
 from utils import constants, logger_script
 
-logger = logger.get_logger(constants.SEGMENTATION_LOGGER_NAME)
+logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
 
 
 class TfidfKMeansClusterer:
@@ -104,12 +104,15 @@ class TfidfKMeansClusterer:
         :return: A DataFrame with headers and their corresponding cluster labels.
         """
         # Extract 'header' values from the nested dictionaries
+        logger.info("Extracting the headers from input dataframe...")
         header_values = self.extract_headers_for_tfidf(input_df)
 
         # Fit the vectorizer to the headers and transform the headers
+        logger.info("Fitting the Tf-idf vectorizer...")
         tfidf_matrix = self.vectorizer.fit_transform(header_values)
 
         # Vectorize the seed words
+        logger.info("Vectorizing the seed words...")
         seed_vectors = []
         for seed_words in constants.SEED_WORDS_LIST:
             seed_vector = self.vectorizer.transform(seed_words).mean(axis=0)
@@ -119,7 +122,9 @@ class TfidfKMeansClusterer:
         seed_matrix = np.squeeze(seed_matrix)
 
         # Apply K-Means clustering
+        logger.info("Starting K-Means clustering process...")
         cluster_labels = self.apply_kmeans(seed_matrix, tfidf_matrix)
+        logger.info("K-Means clustering finished!")
 
         # Create a DataFrame with headers and their corresponding cluster labels
         result_df = pd.DataFrame({
@@ -128,6 +133,7 @@ class TfidfKMeansClusterer:
         })
 
         # Evaluate the quality of the clustering
+        logger.info("Evaluating the clusters...")
         silhouette, db_index = self.evaluate_clusters(tfidf_matrix, cluster_labels)
         logger.info(f"Silhouette Score: {silhouette:.4f}")
         logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
