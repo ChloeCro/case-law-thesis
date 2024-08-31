@@ -30,9 +30,9 @@ class SegmentationPipeline:
             Selects and applies the appropriate clustering method based on the given method number.
             - method 1: Header Clustering using TF-IDF and K-Means with seed words.
             - method 2: Full Text Clustering using TF-IDF and K-Means with labeled data.
-            - method 3: Section Clustering using Se3 self-segmentation.
-            - method 4: Section Clustering using S-BERT and Spectral Clustering.
-            - method 5: Section Clustering using LLM-based classification.
+            - method 3: Section Clustering using Se3 self-segmentation. TODO
+            - method 4: Section Clustering using S-BERT and Spectral Clustering. TODO
+            - method 5: Section Clustering using LLM-based classification. TODO
     """
 
     def __init__(self):
@@ -61,6 +61,7 @@ class SegmentationPipeline:
         method_name = ''
 
         # Load the input dataframe
+        logger.inf("Loading input data...")
         df_to_process = util_functions.load_csv_to_df(input_path)
 
         logger.info("Start segmentation process...")
@@ -107,14 +108,14 @@ if __name__ == '__main__':
                             'with spectral clustering,\n'
                             '5 = LLM-based clustering: clusters sections using a Large Language Model-based approach.'
                         ))
-    parser.add_argument('--input', type=str, default=constants.RAW_DIR.format(year=2022),
+    parser.add_argument('--input', type=str, default=constants.RAW_DIR.format(year=2022),  # TODO: Make input dynamic
                         help="The path to the input data CSV file")
 
     args = parser.parse_args()
 
     # Initialize the segmentation pipeline object and run the segmenting process
-    logger.info("Start extraction pipeline...")
+    logger.info("Start segmentation pipeline...")
     segmentation_pipe = SegmentationPipeline()
     segmentation_pipe.segmentation_process_selector(args.method, args.input)
 
-    logger.info("Extraction pipeline successfully finished!")
+    logger.info("Segmentation pipeline successfully finished!")
