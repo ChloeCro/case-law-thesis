@@ -31,6 +31,8 @@ class HeaderExtractor:
             Extracts legal judgement headers from XML files in a specified folder, converts the extracted data into a
             DataFrame, and optionally saves it to a CSV file.
     """
+    def __init__(self):
+        self.skip_counter = 0
     @staticmethod
     def extract_text_from_section(section: bs4.Tag) -> str:
         """
@@ -121,7 +123,6 @@ class HeaderExtractor:
 
             # If no valid sections are found, log a debug message and skip processing this file
             if not section_data:
-                logger.debug(f"Skipping file {xml_file}: No valid sections found")
                 return None
 
             # Compile all the extracted information into a dictionary
@@ -158,7 +159,8 @@ class HeaderExtractor:
                 # Increment the file counter
                 file_counter += 1
                 # Log the start of processing for the current file
-                logger.info(f"Processing file {file_counter}: {filename}")
+                if file_counter % 10000 == 0:
+                    logger.info(f"Processing file {file_counter}: {filename}")
                 # Process the XML file to extract judgement data
                 judgement_data = self.process_xml(file_path)
                 # If data is successfully extracted, add it to the list
@@ -166,7 +168,7 @@ class HeaderExtractor:
                     all_judgements.append(judgement_data)
                 else:
                     # Log a debug message if no valid data was extracted from the file
-                    logger.debug(f"No valid data extracted from file {filename}")
+                    self.skip_counter += 1
 
         # Return the list containing the extracted data from all processed files
         return all_judgements
@@ -179,6 +181,8 @@ class HeaderExtractor:
         """
         # Process all XML files in the specified folder and extract judgement data
         all_judgements = self.process_xml_files_in_folder(input_path)
+
+        logger.debug(f"Skipped {self.skip_counter}: No valid sections found for these files!")
 
         # Check if any judgement data was extracted
         if all_judgements:

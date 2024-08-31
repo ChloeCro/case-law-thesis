@@ -80,7 +80,7 @@ if __name__ == '__main__':
     # create the argument parser, add the arguments
     parser = argparse.ArgumentParser(description='Rechtspraak Data Processing',
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--method', type=int, choices=range(1, 4), default=1,
+    parser.add_argument('--method', type=int, choices=range(1, 4), default=3,
                         help=(
                             'Specify processing method (1-3): \n'
                             '1 = Full Text Extraction: creates a dataframe with a column that contains the document '
@@ -89,9 +89,8 @@ if __name__ == '__main__':
                             '"procesverloop", "overwegingen", and "beslissing", \n'
                             '3 = Header Extraction: creates a dataframe with a column that holds a dictionary with '
                             'section header and section text. '
-                        )
-                        )
-    parser.add_argument('--input', type=str, default=constants.RAW_DIR.format(year=2022),
+                        ))
+    parser.add_argument('--input', type=str, default=constants.RAW_DIR.format(year=2021),
                         help="The path to the input data CSV file")
 
     args = parser.parse_args()
