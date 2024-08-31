@@ -64,7 +64,7 @@ class SegmentationPipeline:
 
         # Load the input dataframe
         logger.info("Loading input data...")
-        df_to_process = util_functions.load_file_to_df(input_path)
+        df_to_process = util_functions.load_csv_to_df(input_path)
 
         logger.info("Start segmentation process...")
         match method:
@@ -73,7 +73,7 @@ class SegmentationPipeline:
                 extracted_df = self.tfidf_kmeans.guided_kmeans_with_seed_words(df_to_process)
             case 2:
                 method_name = 'Tf-idf and K-means clusters using labeled data'
-                labeled_df = util_functions.load_file_to_df(constants.LABELED_HEADERS_FILE_PATH)
+                labeled_df = util_functions.load_csv_to_df(constants.LABELED_HEADERS_FILE_PATH)
                 extracted_df = self.tfidf_kmeans.guided_kmeans_with_labeled(df_to_process, labeled_df)
             case 3:
                 method_name = 'Se3 self-segmentation clusters'

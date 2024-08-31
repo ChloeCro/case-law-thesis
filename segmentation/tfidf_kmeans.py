@@ -189,12 +189,20 @@ class TfidfKMeansClusterer:
         logger.info("Compute Tf-idf vectors for extracted headers...")
         tfidf_matrix = self.vectorizer.transform(header_values)
 
+        distance_matrix = np.zeros((len(header_values), len(unique_clusters)))
+
+        # Create a mapping from cluster labels to matrix indices
+        cluster_to_index = {cluster: idx for idx, cluster in enumerate(unique_clusters)}
+
         # Calculate the distance from each header to each cluster's refined vector
         logger.info("Calculating distances between headers and clusters and assigning headers to clusters...")
-        distance_matrix = np.zeros((len(header_values), len(refined_tfidf_vectors)))
-        for i, refined_vector in refined_tfidf_vectors.items():
+        for cluster, refined_vector in refined_tfidf_vectors.items():
+            i = cluster_to_index[cluster]  # Get the correct index for the current cluster
             refined_vector_dense = np.squeeze(np.asarray(refined_vector))
             distance_matrix[:, i] = tfidf_matrix.dot(refined_vector_dense.T)
+
+        # Log the completion
+        logger.info("Distance calculation complete. Assigned headers to clusters.")
 
         # Assign each header to the closest cluster based on the distance matrix
         cluster_labels = np.argmax(distance_matrix, axis=1)
