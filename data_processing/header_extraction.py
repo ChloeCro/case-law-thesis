@@ -32,7 +32,9 @@ class HeaderExtractor:
             DataFrame, and optionally saves it to a CSV file.
     """
     def __init__(self):
+        """ Initializes a skip counter to log the number of files skipped. """
         self.skip_counter = 0
+
     @staticmethod
     def extract_text_from_section(section: bs4.Tag) -> str:
         """
