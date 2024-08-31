@@ -212,6 +212,8 @@ class TfidfKMeansClusterer:
 
         # Evaluate the quality of the clustering
         logger.info("Evaluating the clusters...")
-        self.evaluate_clusters(tfidf_matrix, cluster_labels)
+        silhouette, db_index = self.evaluate_clusters(tfidf_matrix, cluster_labels)
+        logger.info(f"Silhouette Score: {silhouette:.4f}")
+        logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
 
         return result_df
