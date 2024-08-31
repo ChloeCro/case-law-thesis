@@ -162,7 +162,7 @@ class HeaderExtractor:
                 file_counter += 1
                 # Log the start of processing for the current file
                 if file_counter % 10000 == 0:
-                    logger.info(f"Processing {file_counter} files!")
+                    logger.info(f"Processed {file_counter} files!")
                 # Process the XML file to extract judgement data
                 judgement_data = self.process_xml(file_path)
                 # If data is successfully extracted, add it to the list
