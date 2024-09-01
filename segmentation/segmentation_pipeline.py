@@ -78,10 +78,10 @@ class SegmentationPipeline:
                 extracted_df = self.tfidf_kmeans.guided_kmeans_with_labeled(df_to_process, labeled_df)
             case 3:
                 method_name = 'Se3 self-segmentation clusters'
-                extracted_df = self.se3_segmenter.process_se3_segmentation(input_path)  # TODO: Implement (needs fulltext)
+                extracted_df = self.se3_segmenter.process_se3_segmentation(df_to_process)  # TODO: Implement (needs fulltext)
             case 4:
                 method_name = 'S-BERT and Spectral Clustering clusters'
-                extracted_df = self.transformer_spectral.process_sbert_spectral(input_path)  # TODO: Implement (needs fulltext)
+                extracted_df = self.transformer_spectral.process_sbert_spectral(df_to_process)  # TODO: Implement (needs fulltext)
                 pass
             case 5:
                 method_name = 'LLM classification'
