@@ -3,6 +3,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import multiprocessing
 
+from tqdm import tqdm
 from utils import constants, logger_script
 
 logger = logger_script.get_logger(constants.EXTRACTION_LOGGER_NAME)
@@ -74,16 +75,14 @@ class FullTextExtractor:
         num_processes = multiprocessing.cpu_count()
 
         logger.info(f"Start multiprocessing XML documents for full texts with {num_processes} processes...")
-        # Create a multiprocessing pool with the determined number of processes
-        pool = multiprocessing.Pool(processes=num_processes)
+        # Initialize the multiprocessing pool
+        with multiprocessing.Pool(processes=num_processes) as pool:
+            # Use imap_unordered to process files as they complete
+            # Wrap the iterator with tqdm for a progress bar
+            result_iter = pool.imap_unordered(self.process_xml_for_fulltext, files)
+            result_lists = list(tqdm(result_iter, total=len(files), desc="Processing XML files for full texts"))
 
-        # Use the multiprocessing pool to process the XML files in parallel
-        result_lists = pool.map(self.process_xml_for_fulltext, files)
-
-        # Close the pool and wait for the worker processes to finish
-        pool.close()
-        pool.join()
-
+        logger.info("Extraction of full texts finished!")
         # Return the list of results from all processed files
         return result_lists
 
