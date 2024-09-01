@@ -1,8 +1,108 @@
+import os
+import pandas as pd
+from bs4 import BeautifulSoup
+import multiprocessing
+
+from utils import constants, logger_script
+
+logger = logger_script.get_logger(constants.EXTRACTION_LOGGER_NAME)
+
 
 class FullTextExtractor:
+    """
+    A class dedicated to extracting full text from Dutch legal case XML files and processing them into a structured
+    format.
 
-    def __init__(self):
-        pass
+    Methods:
+        is_valid_tag(tag: bs4.element.Tag) -> bool:
+            Checks if a given tag is valid for processing (i.e., not a 'title' tag).
+        process_xml(self, xml_file: str) -> list:
+            Processes a single XML file to extract relevant legal judgement information, including the ECLI, date,
+            inhoudsindicatie, and full text.
+        process_files_in_parallel(self, files: list) -> list:
+            Processes a list of XML files in parallel, extracting the legal judgement information from each file.
+        extract_fulltext(self, input_path: str) -> pd.DataFrame:
+            Extracts legal judgement information from all XML files in a specified directory, converts the extracted
+            data into a DataFrame, and returns the DataFrame.
+    """
+
+    @staticmethod
+    def is_valid_tag(tag):
+        """
+        Checks if a given tag is valid for processing, specifically ensuring it is not a 'title' tag.
+        :param tag: A BeautifulSoup tag object representing an XML/HTML tag.
+        :return: True if the tag is valid for processing, False otherwise.
+        """
+        return tag.name != 'title'
+
+    @staticmethod
+    def process_xml_for_fulltext(xml_file):
+        """
+        Processes a single XML file to extract relevant legal judgement information, including the ECLI, date,
+        inhoudsindicatie, and full text of the judgement.
+        :param xml_file: The path to the XML file to be processed.
+        :return: A list containing the extracted 'ecli', 'date', 'inhoudsindicatie', and 'fulltext' values.
+        """
+        judgement_list = []
+
+        # Open the XML file and parse it with BeautifulSoup
+        with open(xml_file, 'r', encoding='utf-8') as file:
+            soup = BeautifulSoup(file, 'xml')  # Adjust the parser based on your XML format
+
+            # Extract the required tags and append to the result list
+            # Example: result_list.append(soup.find('tag_name').text)
+            # extraction of each section in the section list (also save the strings for the 3 separate sections saved)
+            uitspraak_text = soup.find('uitspraak').get_text() if soup.find('uitspraak') else ''
+            ecli = soup.find("dcterms:identifier").get_text() if soup.find("dcterms:identifier") else ''
+            date = soup.find("dcterms:date", {"rdfs:label": "Uitspraakdatum"}).get_text() \
+                if soup.find("dcterms:date", {"rdfs:label": "Uitspraakdatum"}) else ''
+            inhoud = soup.find("inhoudsindicatie").get_text() if soup.find("inhoudsindicatie") else ''
+
+            # Append the extracted information to the judgement_list
+            judgement_list.extend([ecli, date, inhoud, uitspraak_text])
+
+        return judgement_list
+
+    def process_files_in_parallel(self, files):
+        """
+        Processes a list of XML files in parallel, utilizing all available CPU cores, to extract legal judgement
+        information.
+        :param files: A list of paths to the XML files to be processed.
+        :return: A list of lists, where each sublist contains the extracted data from one XML file.
+        """
+        # Determine the number of CPU cores available for parallel processing
+        num_processes = multiprocessing.cpu_count()
+
+        logger.info(f"Start multiprocessing XML documents for full texts with {num_processes} processes...")
+        # Create a multiprocessing pool with the determined number of processes
+        pool = multiprocessing.Pool(processes=num_processes)
+
+        # Use the multiprocessing pool to process the XML files in parallel
+        result_lists = pool.map(self.process_xml_for_fulltext, files)
+
+        # Close the pool and wait for the worker processes to finish
+        pool.close()
+        pool.join()
+
+        # Return the list of results from all processed files
+        return result_lists
 
     def extract_fulltext(self, input_path):
-        pass
+        """
+        Extracts legal judgement information from all XML files in a specified directory, including ECLI, date,
+        inhoudsindicatie, and full text, and converts the extracted data into a Pandas DataFrame.
+        :param input_path: The path to the directory containing the XML files.
+        :return: A Pandas DataFrame containing the extracted 'ecli', 'date', 'inhoudsindicatie', and 'fulltext' for
+            each document.
+        """
+        # Get a list of all XML files in the specified directory
+        xml_files = [os.path.join(input_path, file) for file in os.listdir(input_path) if file.endswith('.xml')]
+
+        # Process the files in parallel and retrieve the results
+        result_lists = self.process_files_in_parallel(xml_files)
+
+        # Define the column names for the resulting DataFrame and create a DataFrame from the extracted results
+        column_names = ['ecli', 'date', 'inhoudsindicatie', 'fulltext']
+        result_df = pd.DataFrame(result_lists, columns=column_names)
+
+        return result_df
