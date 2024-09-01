@@ -85,7 +85,7 @@ class SegmentationPipeline:
                 pass
             case 5:
                 method_name = 'LLM classification'
-                extracted_df = self.llm_clusterer.process_llm_segmentation(input_path)  # TODO: Implement (needs sections)
+                extracted_df = self.llm_clusterer.process_llm_segmentation(df_to_process)  # TODO: Implement (needs sections)
                 pass
 
         if extracted_df is not None and not extracted_df.empty:
