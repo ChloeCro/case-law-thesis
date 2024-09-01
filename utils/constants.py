@@ -29,11 +29,11 @@ LLM_SYS_PROMPT_PATH = os.path.join(SEGMENTATION_DIR, 'system_prompt.txt')
 LLM_PROMPT_NL_PATH = os.path.join(SEGMENTATION_DIR, 'prompt_nl.txt')
 
 # COLUMNS
-SECTIONS_COL = 'section'
+SECTIONS_COL = 'sections'
 LLM_RESPONSE_COL = 'llm_response'
 
 # MODELS
-LLAMA3_MODEL_PATH = os.path.join(MODEL_DIR, 'llama3.1-8B')  # TODO: fix this
+LLAMA3_MODEL_PATH = os.path.join(MODEL_DIR, 'llama3.1-8B', 'Meta-Llama-3.1-8B-Instruct-Q4_K_L.gguf')  # TODO: fix this
 
 # POTENTIALLY UNUSED?
 METADATA_PATH = os.path.join(METADATA_DIR, '{year}_rs_data_t.csv')
