@@ -1,6 +1,13 @@
 # Master Thesis
 ## Optimizing Dutch Legal Text Segmentation and Summarization: _A Low-Resource Approach to Enhancing Relevance Extraction in Complex Case Law_
+**Abstract**: _This thesis addresses the complexities inherent in analyzing Dutch legal case law, which is characterized by its voluminous and intricate documentation. The research focuses on developing effective methods for segmenting these legal texts, with a particular emphasis on identifying and extracting relevant information. In the legal context, relevance extends beyond simple topical or lexical similarities, encompassing the intricate legal relationships between entities that form the basis of judicial decisions.
+The study explores various approaches to divide legal documents into coherent sections based on these relevant legal topics. By combining clustering techniques for legal topics and investigating summarization methods for both full documents and segmented documents, this research aims to determine the most efficient strategies for generating accurate and concise summaries.
+A key consideration in this work is the constraint of limited resources, including computational power and high-quality reference summaries. The thesis addresses these challenges, seeking solutions that are effective under such constraints.
+To validate the proposed methodologies, the research employs a comprehensive evaluation framework, incorporating both automated metrics and human expert assessment. The ultimate goal of this work is to enhance the capacity of legal professionals to efficiently extract crucial information from complex legal documents, thereby streamlining their analysis and decision-making processes._
 
+**Keywords**: _Dutch legal case law, legal text segmentation, information extraction, low-resource, relevance in legal context, human evaluation_ 
+
+---
 ## Data Processing Script for Rechtspraak Case Documents
 
 This script is designed to process legal documents from the Rechtspraak dataset. It extracts useful information such as full text, specific sections, or headers from the documents and saves the processed data into a CSV file. The script leverages different extraction techniques based on the chosen processing method.
@@ -52,6 +59,7 @@ The script processes the data according to the selected method and saves the res
 ### Logging
 The script uses a logger to provide detailed information about the processing steps and any issues encountered during execution. Logs are generated for each run, making it easier to trace the execution flow and diagnose problems.
 
+---
 ## Segmentation Pipeline for Rechtspraak Case Documents
 
 This script is designed to cluster legal document data from the Rechtspraak dataset. It categorizes document headers, full texts, or specific sections using various clustering techniques such as TF-IDF with K-Means, self-segmentation, and spectral clustering. The results are saved as CSV files for further analysis.

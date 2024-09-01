@@ -85,7 +85,7 @@ class TFSpectralClusterer:
         :return: A pandas DataFrame with cluster labels assigned to each document.
         """
 
-        # Do some input preprocessing here
+        # Do some input pre-processing here
         n_grams = ['']
 
         # Compute/load embeddings for clustering
