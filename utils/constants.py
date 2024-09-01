@@ -17,6 +17,7 @@ RAW_DIR = os.path.join(DATA_DIR, 'raw', '{year}')
 DATA_PROCESSING_DIR = os.path.join(REPO_PATH, 'data_processing')
 SEGMENTATION_DIR = os.path.join(REPO_PATH, 'segmentation')
 SEGMENTATION_RESULTS_DIR = os.path.join(SEGMENTATION_DIR, 'results')
+MODEL_DIR = os.path.join(REPO_PATH, 'utils', 'models')
 
 # FILE PATHS
 MERGE_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'merge_patterns.txt')
@@ -29,6 +30,9 @@ LLM_PROMPT_NL_PATH = os.path.join(SEGMENTATION_DIR, 'prompt_nl.txt')
 # COLUMNS
 SECTIONS_COL = 'section'
 LLM_RESPONSE_COL = 'llm_response'
+
+# MODELS
+LLAMA3_MODEL_PATH = os.path.join(MODEL_DIR, 'llama3')  # TODO: fix this
 
 # POTENTIALLY UNUSED?
 METADATA_PATH = os.path.join(METADATA_DIR, '{year}_rs_data_t.csv')

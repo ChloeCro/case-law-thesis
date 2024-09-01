@@ -1,5 +1,7 @@
 import pandas as pd
+import difflib
 
+from llama_cpp import Llama
 from utils import constants, logger_script
 
 logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
@@ -7,8 +9,13 @@ logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
 
 class LLMClusterer:
 
-    def __init__(self, model):
-        self.model = model
+    def __init__(self):
+        # Creates a Llama3-7B:instruct instance from a locally stored model
+        self.model = Llama(
+            model_path=constants.LLAMA3_MODEL_PATH,
+            chat_format='llama-3',
+            n_ctx=20000
+        )
         self.system_prompt, self.prompt = self.get_prompt()
 
     @staticmethod
@@ -22,7 +29,7 @@ class LLMClusterer:
         return sys_prompt, prompt
 
     def get_response(self, input_text):
-        response = ollama.chat(model=self.model, keep_alive=0, options={'temperature': 0.0, 'seed': 42, "top_p": 0.0}, messages=[
+        full_response = self.model.create_chat_completion(messages=[
             {
                 'role': 'system',
                 'content': self.system_prompt
@@ -31,10 +38,19 @@ class LLMClusterer:
                 'role': 'user',
                 'content': self.prompt + input_text
             },
-        ])
+        ],
+            temperature=0.0,
+            max_tokens=10,
+            top_p=0.0,
+            frequency_penalty=0,
+            presence_penalty=0)
+
+        # Extract the actual response message
+        response = full_response['choices'][0]['message']['content']
         return response
 
-    def find_closest_match(self, target, string_list):
+    @staticmethod
+    def find_closest_match(target, string_list):
         """ Find closest matching topic using Levehstein. """
         closest_match = None
         highest_ratio = 0.0
@@ -58,7 +74,7 @@ class LLMClusterer:
             dictionary = getattr(row, constants.SECTIONS_COL)
             nested_dict = {}
             for key, value in dictionary.items():
-                resp = self.get_response(value)['message']['content']
+                resp = self.get_response(value)
                 if len(resp) >= 200:
                     closest_class = 'Faulty LLM answer'
                 else:
@@ -75,5 +91,3 @@ class LLMClusterer:
         result_df = pd.DataFrame(input_df)
 
         return result_df
-        pass
-
