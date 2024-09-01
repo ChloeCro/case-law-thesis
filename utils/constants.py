@@ -31,11 +31,12 @@ EMBEDDINGS_SAVE_PATH = os.path.join(SEGMENTATION_DIR)
 
 # COLUMNS
 SECTIONS_COL = 'sections'
+FULLTEXT_COL = 'fulltext'
+TOKENIZED_COL = 'tokenized'
+CLUSTER_COL = 'cluster'
 LLM_RESPONSE_COL = 'llm_response'
 
 # MODELS
-LLAMA3_MODEL_PATH = os.path.join(MODEL_DIR, 'llama3.1-8B', 'Meta-Llama-3.1-8B-Instruct-Q4_K_L.gguf')  # TODO: fix this
-EMBEDDER_PATH = ""  # TODO: put thingy there and specify path here
 
 # POTENTIALLY UNUSED?
 METADATA_PATH = os.path.join(METADATA_DIR, '{year}_rs_data_t.csv')

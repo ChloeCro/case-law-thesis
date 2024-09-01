@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 
 import tfidf_kmeans, se3, sbert_spectral, llm
-from utils import constants, logger_script, util_functions
+from utils import constants, logger_script, util_data_loader
 
 logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
 
@@ -64,7 +64,7 @@ class SegmentationPipeline:
 
         # Load the input dataframe
         logger.info("Loading input data...")
-        df_to_process = util_functions.load_csv_to_df(input_path)
+        df_to_process = util_data_loader.load_csv_to_df(input_path)
 
         # Determine the processing method and execute the corresponding segmentation technique.
         logger.info("Start segmentation process...")
@@ -74,18 +74,18 @@ class SegmentationPipeline:
                 extracted_df = self.tfidf_kmeans.guided_kmeans_with_seed_words(df_to_process)
             case 2:
                 method_name = 'Tf-idf and K-means clusters using labeled data'
-                labeled_df = util_functions.load_csv_to_df(constants.LABELED_HEADERS_FILE_PATH)
+                labeled_df = util_data_loader.load_csv_to_df(constants.LABELED_HEADERS_FILE_PATH)
                 extracted_df = self.tfidf_kmeans.guided_kmeans_with_labeled(df_to_process, labeled_df)
             case 3:
                 method_name = 'Se3 self-segmentation clusters'
-                extracted_df = self.se3_segmenter.process_se3_segmentation(df_to_process)  # TODO: Implement (needs fulltext)
+                extracted_df = self.se3_segmenter.process_se3_segmentation(df_to_process)  # TODO: Implement
             case 4:
                 method_name = 'S-BERT and Spectral Clustering clusters'
-                extracted_df = self.transformer_spectral.process_sbert_spectral(df_to_process)  # TODO: Implement (needs fulltext)
+                extracted_df = self.transformer_spectral.process_sbert_spectral(df_to_process)  # TODO: Implement
                 pass
             case 5:
                 method_name = 'LLM classification'
-                extracted_df = self.llm_clusterer.process_llm_segmentation(df_to_process)  # TODO: Implement sections extraction
+                extracted_df = self.llm_clusterer.process_llm_segmentation(df_to_process)
 
         if extracted_df is not None and not extracted_df.empty:
             # Generate the current timestamp

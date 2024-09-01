@@ -6,6 +6,8 @@ from typing import List
 from sklearn.cluster import SpectralClustering
 from utils import constants, logger_script
 from sentence_transformers import SentenceTransformer
+from utils import util_preprocessing
+from tqdm import tqdm
 
 logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
 
@@ -34,42 +36,23 @@ class TFSpectralClusterer:
         Initializes the TFSpectralClusterer with a Spectral Clustering model configured for clustering sentence
         embeddings into 8 clusters using nearest neighbors affinity.
         """
+        self.embedding_model = SentenceTransformer('textgain/allnli-GroNLP-bert-base-dutch-cased')
         self.cluster_model = SpectralClustering(n_clusters=8, affinity='nearest_neighbors', random_state=42)
 
     @staticmethod
-    def compute_embeddings(docs: List[str],
-                           batch_size: int = 32,
-                           file_path: str = constants.EMBEDDINGS_SAVE_PATH,
-                           file_name: str = "sent_embeddings",
-                           force_compute: bool = False):
+    def aggregate_embeddings(embeddings: List[np.ndarray], method: str = 'mean') -> np.ndarray:
         """
-        Computes or loads pre-computed sentence embeddings for a list of documents.
-
-        This method uses a pre-trained SentenceTransformer model to encode the input documents into sentence embeddings.
-        If embeddings have already been computed and saved to the specified file, they are loaded from that file.
-        Otherwise, the embeddings are computed and saved for future use.
-
-        :param docs: List of documents (strings) to compute embeddings for.
-        :param batch_size: The number of documents to process in each batch during embedding computation. Default is 32.
-        :param file_path: The directory path where embeddings should be saved or loaded from.
-        :param file_name: The file name to use when saving/loading embeddings.
-        :param force_compute: If True, forces recomputation of embeddings even if they already exist. Default is False.
-        :return: A numpy array containing the computed sentence embeddings.
+        Aggregates a list of embeddings into a single embedding.
+        :param embeddings: A list of numpy arrays, each representing a trigram embedding.
+        :param method: The method used for aggregation. Default is 'mean'. Other options include 'max'.
+        :return: A numpy array representing the aggregated embedding.
         """
-        file_path = os.path.join(file_path, file_name + ".npz")
-
-        if os.path.exists(file_path) and not force_compute:
-            sent_embeddings = np.load(file_path)['embeddings']
-            logger.debug("Loaded pre-computed embeddings from {}.".format(file_path))
+        if method == 'mean':
+            return np.mean(embeddings, axis=0)
+        elif method == 'max':
+            return np.max(embeddings, axis=0)
         else:
-            logger.debug("Computing sentence embeddings...")
-            embedding_model = SentenceTransformer(constants.EMBEDDER_PATH)
-            sent_embeddings = embedding_model.encode(sentences=docs, batch_size=batch_size, show_progress_bar=True,
-                                                     normalize_embeddings=True)
-            np.savez_compressed(file_path, embeddings=sent_embeddings)
-            logger.debug("Sentence embeddings were computed and saved to {}.".format(file_path))
-
-        return sent_embeddings
+            raise ValueError(f"Unknown aggregation method: {method}")
 
     def process_sbert_spectral(self, input_df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -84,16 +67,23 @@ class TFSpectralClusterer:
         :param input_df: A pandas DataFrame containing the input documents to be segmented.
         :return: A pandas DataFrame with cluster labels assigned to each document.
         """
+        # Apply tokenization to the full texts and generate tri-grams
+        input_df = util_preprocessing.tokenize_sentences(input_df, constants.FULLTEXT_COL)
+        trigrams = input_df[constants.TOKENIZED_COL].apply(util_preprocessing.generate_trigrams)
 
-        # Do some input pre-processing here
-        n_grams = ['']
+        aggregated_embeddings = []
 
-        # Compute/load embeddings for clustering
-        embeddings = self.compute_embeddings(n_grams)
+        for trigrams in tqdm(trigrams, desc="Computing aggregated embeddings"):
+            trigram_embeddings = [self.embedding_model.encode(' '.join(trigram), normalize_embeddings=True) for trigram
+                                  in trigrams]
+            aggregated_embedding = self.aggregate_embeddings(trigram_embeddings, method='mean')
+            aggregated_embeddings.append(aggregated_embedding)
+
+        # Convert the list of aggregated embeddings to a numpy array
+        embeddings = np.array(aggregated_embeddings)
 
         # Create clusters from embeddings and store labels
         labels = self.cluster_model.fit_predict(embeddings)
+        input_df[constants.CLUSTER_COL] = labels
 
-        # Do some post-processing with clusters here
-
-        pass
+        return input_df

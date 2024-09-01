@@ -50,17 +50,18 @@ class FullTextExtractor:
         with open(xml_file, 'r', encoding='utf-8') as file:
             soup = BeautifulSoup(file, 'xml')  # Adjust the parser based on your XML format
 
-            # Extract the required tags and append to the result list
-            # Example: result_list.append(soup.find('tag_name').text)
-            # extraction of each section in the section list (also save the strings for the 3 separate sections saved)
-            uitspraak_text = soup.find('uitspraak').get_text() if soup.find('uitspraak') else ''
+            # Extract the ECLI, date, and inhoudsindicatie
             ecli = soup.find("dcterms:identifier").get_text() if soup.find("dcterms:identifier") else ''
             date = soup.find("dcterms:date", {"rdfs:label": "Uitspraakdatum"}).get_text() \
                 if soup.find("dcterms:date", {"rdfs:label": "Uitspraakdatum"}) else ''
             inhoud = soup.find("inhoudsindicatie").get_text() if soup.find("inhoudsindicatie") else ''
 
+            # Extract the text from all <section> tags and combine it
+            sections = soup.find_all('section')
+            combined_text = ' '.join(section.get_text(separator=' ', strip=True) for section in sections)
+
             # Append the extracted information to the judgement_list
-            judgement_list.extend([ecli, date, inhoud, uitspraak_text])
+            judgement_list.extend([ecli, date, inhoud, combined_text])
 
         return judgement_list
 
