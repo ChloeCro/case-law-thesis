@@ -24,6 +24,7 @@ MERGE_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'merge_patterns.txt')
 SPLIT_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'split_patterns.txt')
 LABELED_HEADERS_FILE_PATH = os.path.join(METADATA_DIR, 'labeled_headers.csv')
 HEADERS_PATH = os.path.join(METADATA_DIR, 'headers_{year}.csv')
+SECTIONS_PATH = os.path.join(METADATA_DIR, 'sections_{year}.csv')
 LLM_SYS_PROMPT_PATH = os.path.join(SEGMENTATION_DIR, 'system_prompt.txt')
 LLM_PROMPT_NL_PATH = os.path.join(SEGMENTATION_DIR, 'prompt_nl.txt')
 
@@ -32,7 +33,7 @@ SECTIONS_COL = 'section'
 LLM_RESPONSE_COL = 'llm_response'
 
 # MODELS
-LLAMA3_MODEL_PATH = os.path.join(MODEL_DIR, 'llama3')  # TODO: fix this
+LLAMA3_MODEL_PATH = os.path.join(MODEL_DIR, 'llama3.1-8B')  # TODO: fix this
 
 # POTENTIALLY UNUSED?
 METADATA_PATH = os.path.join(METADATA_DIR, '{year}_rs_data_t.csv')

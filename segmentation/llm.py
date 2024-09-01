@@ -3,7 +3,7 @@ import difflib
 
 from llama_cpp import Llama
 from utils import constants, logger_script
-from Typing import Tuple, List
+from typing import Tuple, List
 
 logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
 
@@ -35,7 +35,7 @@ class LLMClusterer:
     """
 
     def __init__(self):
-        """Initializes the LLMClusterer with the locally stored Llama3-7B model and loads the necessary prompts."""
+        """Initializes LLMClusterer with the locally stored Llama3.1-8B:instruct model and loads necessary prompts."""
         self.model = Llama(
             model_path=constants.LLAMA3_MODEL_PATH,
             chat_format='llama-3',

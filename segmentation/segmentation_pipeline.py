@@ -117,7 +117,7 @@ if __name__ == '__main__':
                             'with spectral clustering,\n'
                             '5 = LLM-based clustering: clusters sections using a Large Language Model-based approach.'
                         ))
-    parser.add_argument('--input', type=str, default=constants.HEADERS_PATH.format(year=2022),  # TODO: Make input dynamic
+    parser.add_argument('--input', type=str, default=constants.SECTIONS_PATH.format(year=2022),  # TODO: Make input dynamic
                         help="The path to the input data CSV file")
 
     args = parser.parse_args()
