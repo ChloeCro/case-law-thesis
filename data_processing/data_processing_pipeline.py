@@ -52,7 +52,7 @@ class DataProcessing:
         match method:
             case 1:
                 method_name = 'fulltext'
-                extracted_df = self.full_text_extractor.extract_fulltext(input_path)  # TODO: Implement
+                extracted_df = self.full_text_extractor.extract_fulltext(input_path)
             case 2:
                 method_name = 'sections'
                 extracted_df = self.section_extractor.extract_sections(input_path)  # TODO: Implement
