@@ -3,7 +3,7 @@ import argparse
 import pandas as pd
 from datetime import datetime
 
-import header_extraction, full_text_extraction, section_extraction
+import header_extraction, full_text_extraction, section_extraction, subset_extraction
 from utils import constants, logger_script
 
 logger = logger_script.get_logger(constants.EXTRACTION_LOGGER_NAME)
@@ -17,6 +17,7 @@ class DataProcessing:
         full_text_extractor (FullTextExtractor): Extracts the full text content from documents.
         section_extractor (SectionExtractor): Extracts specific sections of the documents.
         header_extractor (HeaderExtractor): Extracts header information additional to sections from documents.
+        subset_extractor (SubsetExtractor): Extracts the full text of a subset from the specified year.
 
     Methods:
         data_process_selector(method: int):
@@ -33,6 +34,7 @@ class DataProcessing:
         self.full_text_extractor = full_text_extraction.FullTextExtractor()
         self.section_extractor = section_extraction.SectionExtractor()
         self.header_extractor = header_extraction.HeaderExtractor()
+        self.subset_extractor = subset_extraction.SubsetExtractor()
 
     def data_process_selector(self, method: int, input_path: str):
         """

@@ -9,7 +9,8 @@ from tqdm import tqdm
 tqdm.pandas()
 
 
-def safe_tokenize(text):
+def safe_tokenize(text: str) -> List[str]:
+    """ Performs tokenization if text is a string, if text is any other type it returns an empty list.  """
     if isinstance(text, str):
         return sent_tokenize(text)
     else:
