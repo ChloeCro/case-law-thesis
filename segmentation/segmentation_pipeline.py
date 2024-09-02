@@ -81,7 +81,7 @@ class SegmentationPipeline:
                 extracted_df = self.se3_segmenter.process_se3_segmentation(df_to_process)  # TODO: Implement
             case 4:
                 method_name = 'S-BERT and Spectral Clustering clusters'
-                extracted_df = self.transformer_spectral.process_sbert_spectral(df_to_process)  # TODO: Implement
+                extracted_df = self.transformer_spectral.process_sbert_spectral(df_to_process)  # TODO: Test
                 pass
             case 5:
                 method_name = 'LLM classification'
