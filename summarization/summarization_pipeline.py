@@ -6,56 +6,50 @@ from datetime import datetime
 import extractive_summarization, abstractive_summarization
 from utils import constants, logger_script, util_data_loader
 
-logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
+logger = logger_script.get_logger(constants.SUMMARIZATION_LOGGER_NAME)
 
 
 class SummarizationPipeline:
     """
-        A class dedicated to clustering legal document data from Rechtspraak case documents.
+        A class dedicated to summarizing legal document data from Rechtspraak case documents.
 
-    This pipeline applies various data clustering techniques to legal case documents, utilizing different approaches
-    such as TF-IDF with K-Means, self-segmentation, and spectral clustering to categorize headers, full texts,
-    or specific sections based on the provided method.
+    This pipeline applies various summarization techniques to legal case documents, utilizing different approaches
+    such as TextRank, BERT-based extractive summarization, and BART-based abstractive summarization.
 
     Attributes:
-        tfidf_kmeans (TfidfKMeansClusterer): Clusters section headers and section content using TF-IDF and K-Means
-                                            clustering. Includes methods for:
-                                              - Clustering based on seed words.
-                                              - Clustering based on labeled data.
-        se3_segmenter (Se3Clusterer): Clusters full text content using a self-segmentation approach.
-        transformer_spectral (TFSpectralClusterer): Clusters specific sections of documents using Transformer
-                                                    embeddings combined with Spectral Clustering.
-        llm_clusterer (LLMClusterer): Placeholder for clustering and classification using a Large Language Model.
+        extractive_summarizer (ExtractiveSummarizer): Applies extractive summarization methods like TextRank and BERT.
+        abstractive_summarizer (AbstractiveSummarizer): Applies abstractive summarization methods like BART and Llama.
 
     Methods:
-        segmentation_process_selector(method: int, input_path: str):
-            Selects and applies the appropriate clustering method based on the given method number.
-            - method 1: Header Clustering using TF-IDF and K-Means with seed words.
-            - method 2: Full Text Clustering using TF-IDF and K-Means with labeled data.
-            - method 3: Section Clustering using Se3 self-segmentation. TODO
-            - method 4: Section Clustering using S-BERT and Spectral Clustering. TODO
+        summarization_process_selector(method: int, input_path: str, evaluate: bool):
+            Selects and applies the appropriate summarization method based on the given method number.
+            - method 1: Apply TextRank for extractive summarization.
+            - method 2: Apply BERT for extractive summarization.
+            - method 3: Apply BART for abstractive summarization.
+            - method 4: Apply Llama for abstractive summarization.
     """
 
     def __init__(self):
         """
-        Initializes the SegmentationPipeline with the specific components for clustering and segmentation methods.
+        Initializes the SummarizationPipeline with specific components for extractive and abstractive summarization
+        methods.
         """
         self.extractive_summarizer = extractive_summarization.ExtractiveSummarizer()
         self.abstractive_summarizer = abstractive_summarization.AbstractiveSummarizer()
 
     def summarization_process_selector(self, method: int, input_path: str, evaluate: bool):
         """
-        Selects and executes a clustering method based on the provided method identifier. Depending on the method
-        chosen, the function clusters different types of data, saves the results to a CSV file, and logs the outcome.
-        :param method: An integer representing the clustering method to execute. The options are:
-                1: Clusters headers using TF-IDF and K-Means with seed words and saves the results to a CSV file.
-                2: Clusters full text using TF-IDF and K-Means with labeled data and saves the results to a CSV file.
-                3: Clusters sections using Se3 self-segmentation and saves the results to a CSV file.
-                4: Clusters sections using S-BERT and Spectral Clustering and saves the results to a CSV file.
-                5: Clusters sections using LLM-based classification and saves the results to a CSV file.
-        :param input_path: The path to the file to be processed.
+        Selects and executes a summarization method based on the provided method identifier. Depending on the method
+        chosen, the function applies summarization techniques to the text, saves the results to a CSV file, and logs
+        the outcome.
+        :param method: An integer representing the summarization method to execute. The options are:
+                1: Apply TextRank for extractive summarization and save the results to a CSV file.
+                2: Apply BERT for extractive summarization and save the results to a CSV file.
+                3: Apply BART for abstractive summarization and save the results to a CSV file.
+                4: Apply Llama for abstractive summarization and save the results to a CSV file.
+        :param input_path: The path to the CSV file to be processed.
         :param evaluate: A bool that indicates whether evaluation scores must be saved.
-        :return: The function performs data clustering and saves the results to a CSV file.
+        :return: The function performs text summarization and saves the results to a CSV file.
         """
         extracted_df = pd.DataFrame()
         method_name = ''
@@ -65,7 +59,7 @@ class SummarizationPipeline:
         df_to_process = util_data_loader.load_csv_to_df(input_path)
 
         # Determine the processing method and execute the corresponding segmentation technique.
-        logger.info("Start segmentation process...")
+        logger.info("Start summarization process...")
         match method:
             case 1:
                 method_name = 'TextRank'
@@ -115,9 +109,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    # Initialize the segmentation pipeline object and run the segmenting process
-    logger.info("Start segmentation pipeline...")
+    # Initialize the summarization pipeline object and run the summarization process
+    logger.info("Start summarization pipeline...")
     summarization_pipe = SummarizationPipeline()
     summarization_pipe.summarization_process_selector(args.method, args.input, args.eval)
 
-    logger.info("Segmentation pipeline successfully finished!")
+    logger.info("Summarization pipeline successfully finished!")
