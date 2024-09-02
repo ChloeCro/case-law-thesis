@@ -18,6 +18,8 @@ DATA_PROCESSING_DIR = os.path.join(REPO_PATH, 'data_processing')
 SEGMENTATION_DIR = os.path.join(REPO_PATH, 'segmentation')
 SEGMENTATION_RESULTS_DIR = os.path.join(SEGMENTATION_DIR, 'results')
 MODEL_DIR = os.path.join(REPO_PATH, 'utils', 'models')
+SUMMARIZATION_DIR = os.path.join(REPO_PATH, 'summarization')
+SUMMARIZATION_RESULTS_DIR = os.path.join(SUMMARIZATION_DIR, 'results')
 
 # FILE PATHS
 MERGE_PATTERNS_PATH = os.path.join(DATA_PROCESSING_DIR, 'merge_patterns.txt')

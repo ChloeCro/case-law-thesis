@@ -46,7 +46,7 @@ class SegmentationPipeline:
         self.transformer_spectral = sbert_spectral.TFSpectralClusterer()
         self.llm_clusterer = llm.LLMClusterer()
 
-    def segmentation_process_selector(self, method: int, input_path: str):
+    def segmentation_process_selector(self, method: int, input_path: str, evaluate: bool, plot: bool):
         """
         Selects and executes a clustering method based on the provided method identifier. Depending on the method
         chosen, the function clusters different types of data, saves the results to a CSV file, and logs the outcome.
@@ -57,6 +57,8 @@ class SegmentationPipeline:
                 4: Clusters sections using S-BERT and Spectral Clustering and saves the results to a CSV file.
                 5: Clusters sections using LLM-based classification and saves the results to a CSV file.
         :param input_path: The path to the file to be processed.
+        :param evaluate: A bool that indicates whether evaluation scores must be saved.
+        :param plot: A bool that indicates whether a plot must be saved of clustered data.
         :return: The function performs data clustering and saves the results to a CSV file.
         """
         extracted_df = pd.DataFrame()
@@ -71,17 +73,17 @@ class SegmentationPipeline:
         match method:
             case 1:
                 method_name = 'Tf-idf and K-means clusters using seed words'
-                extracted_df = self.tfidf_kmeans.guided_kmeans_with_seed_words(df_to_process)
+                extracted_df = self.tfidf_kmeans.guided_kmeans_with_seed_words(df_to_process, evaluate, plot)
             case 2:
                 method_name = 'Tf-idf and K-means clusters using labeled data'
                 labeled_df = util_data_loader.load_csv_to_df(constants.LABELED_HEADERS_FILE_PATH)
-                extracted_df = self.tfidf_kmeans.guided_kmeans_with_labeled(df_to_process, labeled_df)
+                extracted_df = self.tfidf_kmeans.guided_kmeans_with_labeled(df_to_process, labeled_df, evaluate, plot)
             case 3:
                 method_name = 'Se3 self-segmentation clusters'
-                extracted_df = self.se3_segmenter.process_se3_segmentation(df_to_process)  # TODO: Test
+                extracted_df = self.se3_segmenter.process_se3_segmentation(df_to_process, evaluate)  # TODO: Test
             case 4:
                 method_name = 'S-BERT and Spectral Clustering clusters'
-                extracted_df = self.transformer_spectral.process_sbert_spectral(df_to_process)  # TODO: Test
+                extracted_df = self.transformer_spectral.process_sbert_spectral(df_to_process, evaluate)  # TODO: Test
                 pass
             case 5:
                 method_name = 'LLM classification'
@@ -119,12 +121,15 @@ if __name__ == '__main__':
                         ))
     parser.add_argument('--input', type=str, default=constants.SECTIONS_PATH.format(year=2020),  # TODO: Make input dynamic
                         help="The path to the input data CSV file")
+    parser.add_argument('--eval', action='store_true', help="If true, returns the evaluation scores in a CSV file.")
+    parser.add_argument('--plot', action='store_true', help="If true, returns a plot of the clustered data (only "
+                                                            "available for TFIDF + K-MEANS methods).")
 
     args = parser.parse_args()
 
     # Initialize the segmentation pipeline object and run the segmenting process
     logger.info("Start segmentation pipeline...")
     segmentation_pipe = SegmentationPipeline()
-    segmentation_pipe.segmentation_process_selector(args.method, args.input)
+    segmentation_pipe.segmentation_process_selector(args.method, args.input, args.eval, args.plot)
 
     logger.info("Segmentation pipeline successfully finished!")

@@ -1,13 +1,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import segmentation_eval
 
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score, davies_bouldin_score
 from sklearn.decomposition import PCA
-from typing import Tuple
 from tqdm import tqdm
 
 from utils import constants, logger_script
@@ -64,19 +63,7 @@ class TfidfKMeansClusterer:
         return cluster_labels
 
     @staticmethod
-    def evaluate_clusters(tfidf_matrix: np.array, cluster_labels: np.ndarray[int]) -> Tuple[float, float]:
-        """
-        Evaluates the quality of the clusters using Silhouette Score and Davies-Bouldin Index.
-        :param tfidf_matrix: The TF-IDF matrix representing the text data.
-        :param cluster_labels: An array of cluster labels assigned to each document.
-        :return: None. Writes the scores to the logger.
-        """
-        silhouette_avg = silhouette_score(tfidf_matrix, cluster_labels)
-        davies_bouldin = davies_bouldin_score(tfidf_matrix.toarray(), cluster_labels)
-        return silhouette_avg, davies_bouldin
-
-    @staticmethod
-    def generate_tfidf_kmeans_scatter_plot(tfidf_matrix: np.array, cluster_labels: list):
+    def generate_tfidf_kmeans_scatter_plot(tfidf_matrix: np.array, cluster_labels: np.ndarray[int]):
         """
         Generates a 2D scatter plot of the TF-IDF matrix data points, colored by their cluster labels.
         :param tfidf_matrix: The TF-IDF matrix representing the text data.
@@ -98,10 +85,11 @@ class TfidfKMeansClusterer:
         plt.legend()
         plt.show()  # TODO: add save statement
 
-    def guided_kmeans_with_seed_words(self, input_df: pd.DataFrame) -> pd.DataFrame:
+    def guided_kmeans_with_seed_words(self, input_df: pd.DataFrame, evaluate: bool, plot: bool) -> pd.DataFrame:
         """
         Applies K-Means clustering to the headers in the input DataFrame using seed words to guide the clustering.
         :param input_df: The input DataFrame containing the 'sections' column with nested dictionaries.
+        :param evaluate: A bool that indicates whether evaluation scores must be saved.
         :return: A DataFrame with headers and their corresponding cluster labels.
         """
         # Extract 'header' values from the nested dictionaries
@@ -133,20 +121,32 @@ class TfidfKMeansClusterer:
             'Cluster': cluster_labels
         })
 
-        # Evaluate the quality of the clustering
-        logger.info("Evaluating the clusters...")
-        silhouette, db_index = self.evaluate_clusters(tfidf_matrix, cluster_labels)
-        logger.info(f"Silhouette Score: {silhouette:.4f}")
-        logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
+        if evaluate:
+            # Evaluate the quality of the clustering
+            logger.info("Evaluating the clusters...")
+            silhouette, db_index = segmentation_eval.SegmentationEvaluator.evaluate_clusters(tfidf_matrix,
+                                                                                             cluster_labels)
+            logger.info(f"Silhouette Score: {silhouette:.4f}")
+            logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
+
+        if plot:
+            logger.info("Generating the cluster plot...")
+            self.generate_tfidf_kmeans_scatter_plot(tfidf_matrix, cluster_labels)
 
         return result_df
 
-    def guided_kmeans_with_labeled(self, input_df: pd.DataFrame, labeled_df: pd.DataFrame) -> pd.DataFrame:
+    def guided_kmeans_with_labeled(self,
+                                   input_df: pd.DataFrame,
+                                   labeled_df: pd.DataFrame,
+                                   evaluate: bool,
+                                   plot: bool) -> pd.DataFrame:
         """
         Applies K-Means clustering to the headers in the input DataFrame using refined TF-IDF vectors
         derived from labeled data.
         :param input_df: The input DataFrame containing the 'sections' column with nested dictionaries.
         :param labeled_df: The labeled DataFrame containing 'Header' and 'Cluster' columns.
+        :param evaluate: A bool that indicates whether evaluation scores must be saved.
+        :param plot: A bool that indicates whether a plot must be saved of clustered data.
         :return: A DataFrame with headers and their predicted cluster labels.
         """
         # Extract 'header' and 'cluster' values from the labeled DataFrame
@@ -210,10 +210,16 @@ class TfidfKMeansClusterer:
         # Create a DataFrame with headers and their predicted cluster labels
         result_df = pd.DataFrame({'Header': header_values, 'Cluster': cluster_labels})
 
-        # Evaluate the quality of the clustering
-        logger.info("Evaluating the clusters...")
-        silhouette, db_index = self.evaluate_clusters(tfidf_matrix, cluster_labels)
-        logger.info(f"Silhouette Score: {silhouette:.4f}")
-        logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
+        if evaluate:
+            # Evaluate the quality of the clustering
+            logger.info("Evaluating the clusters...")
+            silhouette, db_index = segmentation_eval.SegmentationEvaluator.evaluate_clusters(tfidf_matrix,
+                                                                                             cluster_labels)
+            logger.info(f"Silhouette Score: {silhouette:.4f}")
+            logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
+
+        if plot:
+            logger.info("Generating the cluster plot...")
+            self.generate_tfidf_kmeans_scatter_plot(tfidf_matrix, cluster_labels)
 
         return result_df
