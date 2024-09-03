@@ -103,7 +103,7 @@ if __name__ == '__main__':
                             '3 = BART (abstractive summarization),\n'
                             '4 = Llama3.1-8B:instruct (abstractive summarization).'
                         ))
-    parser.add_argument('--input', type=str, default=constants.SECTIONS_PATH.format(year=2020),  # TODO: Make input dynamic
+    parser.add_argument('--input', type=str, default=constants.SECTIONS_PATH.format(year=2020),  # TODO: Make dynamic
                         help="The path to the input data CSV file")
     parser.add_argument('--eval', action='store_true', help="If true, returns the evaluation scores in a CSV file.")
 

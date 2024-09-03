@@ -50,6 +50,21 @@ class TfidfKMeansClusterer:
         return header_values
 
     @staticmethod
+    def update_sections_with_labels(input_df: pd.DataFrame, cluster_labels: np.ndarray[int]) -> pd.DataFrame:
+        """
+        Updates the 'sections' column in the input DataFrame by adding a 'label' key with the cluster number.
+        :param input_df: The original input DataFrame containing the 'sections' column.
+        :param cluster_labels: The cluster labels to be added to the 'sections' column.
+        :return: The updated DataFrame with the 'label' key added to each nested dictionary in the 'sections' column.
+        """
+        for idx, nested_dict in enumerate(input_df['sections']):
+            for key in nested_dict:
+                if key.isdigit():  # Check if the key is a number
+                    # Add the cluster label to the dictionary
+                    nested_dict[key]['label'] = int(cluster_labels[idx])
+        return input_df
+
+    @staticmethod
     def apply_kmeans(init_value: np.ndarray[int], tfidf_matrix: np.ndarray[int]) -> np.ndarray[int]:
         """
         Applies K-Means clustering to the TF-IDF matrix using the provided seed matrix for initialization.
@@ -90,6 +105,7 @@ class TfidfKMeansClusterer:
         Applies K-Means clustering to the headers in the input DataFrame using seed words to guide the clustering.
         :param input_df: The input DataFrame containing the 'sections' column with nested dictionaries.
         :param evaluate: A bool that indicates whether evaluation scores must be saved.
+        :param plot: A bool that indicates whether a plot must be saved of clustered data.
         :return: A DataFrame with headers and their corresponding cluster labels.
         """
         # Extract 'header' values from the nested dictionaries
@@ -115,11 +131,9 @@ class TfidfKMeansClusterer:
         cluster_labels = self.apply_kmeans(seed_matrix, tfidf_matrix)
         logger.info("K-Means clustering finished!")
 
-        # Create a DataFrame with headers and their corresponding cluster labels
-        result_df = pd.DataFrame({
-            'Header': header_values,
-            'Cluster': cluster_labels
-        })
+        # Update the sections with cluster labels
+        logger.info("Updating sections with cluster labels...")
+        result_df = self.update_sections_with_labels(input_df, cluster_labels)
 
         if evaluate:
             # Evaluate the quality of the clustering
@@ -207,8 +221,9 @@ class TfidfKMeansClusterer:
         # Assign each header to the closest cluster based on the distance matrix
         cluster_labels = np.argmax(distance_matrix, axis=1)
 
-        # Create a DataFrame with headers and their predicted cluster labels
-        result_df = pd.DataFrame({'Header': header_values, 'Cluster': cluster_labels})
+        # Update the sections with cluster labels
+        logger.info("Updating sections with cluster labels...")
+        result_df = self.update_sections_with_labels(input_df, cluster_labels)
 
         if evaluate:
             # Evaluate the quality of the clustering
