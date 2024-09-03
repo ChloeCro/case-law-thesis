@@ -1,8 +1,7 @@
-
 from rouge_score import rouge_scorer
 from transformers import AutoModel, AutoTokenizer
 from sklearn.metrics.pairwise import cosine_similarity
-from utils import constants, logger_script
+from utils import constants, logger_script, util_preprocessing
 from tqdm import tqdm
 
 logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
@@ -11,8 +10,8 @@ logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
 class Se3Clusterer:
 
     def __init__(self):
-        self.tokenizer = AutoTokenizer.from_pretrained('joelito/legal-xlm-roberta-base')
-        self.model = AutoModel.from_pretrained('joelito/legal-xlm-roberta-base')
+        self.tokenizer = AutoTokenizer.from_pretrained(constants.LEGAL_MULTILING_TF)
+        self.model = AutoModel.from_pretrained(constants.LEGAL_MULTILING_TF)
 
     @staticmethod
     def semantic_similarity(sentence_embedding, chunk_embedding):
@@ -83,9 +82,13 @@ class Se3Clusterer:
     def process_se3_segmentation(self, input_df):
         results = []
         min_size, max_size = 64, 128
-        for index, row in tqdm(input_df.iterrows(), total=input_df.shape[0], desc="Processing documents with Se3"):
-            document = row['fulltext'].split('. ')  # Split document into sentences
-            summary_sentences = row['inhoudsindicatie'].split('. ')  # Split summary into sentences
+
+        # Create a subset of the DataFrame based on the proportions of 'instantie'
+        subset_df = util_preprocessing.create_subset_based_on_proportions(input_df)
+
+        for index, row in tqdm(subset_df.iterrows(), total=subset_df.shape[0], desc="Processing documents with Se3"):
+            document = row[constants.FULLTEXT_COL].split('. ')  # Split document into sentences
+            summary_sentences = row[constants.INHOUD_COL].split('. ')  # Split summary into sentences
 
             # Create chunks
             chunks = self.create_chunks(document, min_size, max_size)

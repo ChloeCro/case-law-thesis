@@ -1,12 +1,10 @@
-import os
 import pandas as pd
 import numpy as np
 
 from typing import List
 from sklearn.cluster import SpectralClustering
-from utils import constants, logger_script
+from utils import constants, logger_script, util_preprocessing
 from sentence_transformers import SentenceTransformer
-from utils import util_preprocessing
 from tqdm import tqdm
 
 logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
@@ -36,7 +34,7 @@ class TFSpectralClusterer:
         Initializes the TFSpectralClusterer with a Spectral Clustering model configured for clustering sentence
         embeddings into 8 clusters using nearest neighbors affinity.
         """
-        self.embedding_model = SentenceTransformer('textgain/allnli-GroNLP-bert-base-dutch-cased')
+        self.embedding_model = SentenceTransformer(constants.DUTCH_BERT)
         self.cluster_model = SpectralClustering(n_clusters=8, affinity='nearest_neighbors', random_state=42)
 
     @staticmethod
@@ -59,17 +57,21 @@ class TFSpectralClusterer:
         Processes input documents for segmentation using sentence embeddings and spectral clustering.
 
         This method performs the following steps:
-        1. Preprocesses the input data.
-        2. Computes or loads pre-computed embeddings for the preprocessed data.
-        3. Applies spectral clustering to the embeddings to assign cluster labels to each document.
-        4. Performs post-processing (if needed) and returns the DataFrame with cluster labels.
+        1. Creates a subset of the input data based on the proportions of values in the 'instantie' column.
+        2. Preprocesses the input data.
+        3. Computes embeddings for the preprocessed data.
+        4. Applies spectral clustering to the embeddings to assign cluster labels to each document.
+        5. Returns the DataFrame with cluster labels.
 
         :param input_df: A pandas DataFrame containing the input documents to be segmented.
         :return: A pandas DataFrame with cluster labels assigned to each document.
         """
+        # Create a subset of the DataFrame based on the proportions of 'instantie'
+        subset_df = util_preprocessing.create_subset_based_on_proportions(input_df)
+
         # Apply tokenization to the full texts and generate tri-grams
-        input_df = util_preprocessing.tokenize_sentences(input_df, constants.FULLTEXT_COL)
-        trigrams = input_df[constants.TOKENIZED_COL].apply(util_preprocessing.generate_trigrams)
+        subset_df = util_preprocessing.tokenize_sentences(subset_df, constants.FULLTEXT_COL)
+        trigrams = subset_df[constants.TOKENIZED_COL].apply(util_preprocessing.generate_trigrams)
 
         aggregated_embeddings = []
 
@@ -84,6 +86,6 @@ class TFSpectralClusterer:
 
         # Create clusters from embeddings and store labels
         labels = self.cluster_model.fit_predict(embeddings)
-        input_df[constants.CLUSTER_COL] = labels
+        subset_df[constants.CLUSTER_COL] = labels
 
-        return input_df
+        return subset_df

@@ -32,6 +32,8 @@ LLM_PROMPT_NL_PATH = os.path.join(SEGMENTATION_DIR, 'prompt_nl.txt')
 EMBEDDINGS_SAVE_PATH = os.path.join(SEGMENTATION_DIR)
 
 # COLUMNS
+INSTANTIE_COL = 'instantie'
+INHOUD_COL = 'inhoudsindicatie'
 SECTIONS_COL = 'sections'
 FULLTEXT_COL = 'fulltext'
 TOKENIZED_COL = 'tokenized'
@@ -39,6 +41,8 @@ CLUSTER_COL = 'cluster'
 LLM_RESPONSE_COL = 'llm_response'
 
 # MODELS
+DUTCH_BERT = 'textgain/allnli-GroNLP-bert-base-dutch-cased'
+LEGAL_MULTILING_TF = 'joelito/legal-xlm-roberta-base'
 
 # POTENTIALLY UNUSED?
 METADATA_PATH = os.path.join(METADATA_DIR, '{year}_rs_data_t.csv')

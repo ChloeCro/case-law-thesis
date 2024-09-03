@@ -69,3 +69,28 @@ def generate_trigrams(sentences: List[str]) -> List[List[str]]:
                 break
 
     return trigrams
+
+
+def create_subset_based_on_proportions(df: pd.DataFrame, subset_size: int = 100) -> pd.DataFrame:
+    """
+    Creates a subset of the DataFrame based on the proportions of values in the 'instantie' column.
+    :param df: The original DataFrame.
+    :param subset_size: The desired number of rows in the subset.
+    :return: A subset DataFrame with proportions reflecting those in the 'instantie' column.
+    """
+    # Calculate the proportions of each value in the 'instantie' column
+    proportions = df[constants.INSTANTIE_COL].value_counts(normalize=True)
+
+    # Create a list to hold the subset DataFrame rows
+    subset_dfs = []
+
+    # Generate the subset based on proportions
+    for value, proportion in proportions.items():
+        value_subset = df[df[constants.INSTANTIE_COL] == value]
+        n_samples = max(1, int(proportion * subset_size))  # Ensure at least one sample is taken
+        subset_dfs.append(value_subset.sample(n=n_samples))
+
+    # Concatenate the subset DataFrames
+    subset_df = pd.concat(subset_dfs).reset_index(drop=True)
+
+    return subset_df
