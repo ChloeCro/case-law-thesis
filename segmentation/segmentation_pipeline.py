@@ -32,9 +32,9 @@ class SegmentationPipeline:
             Selects and applies the appropriate clustering method based on the given method number.
             - method 1: Header Clustering using TF-IDF and K-Means with seed words.
             - method 2: Full Text Clustering using TF-IDF and K-Means with labeled data.
-            - method 3: Section Clustering using Se3 self-segmentation. TODO
-            - method 4: Section Clustering using S-BERT and Spectral Clustering. TODO
-            - method 5: Section Clustering using LLM-based classification. TODO
+            - method 3: Section Clustering using Se3 self-segmentation.
+            - method 4: Section Clustering using S-BERT and Spectral Clustering.
+            - method 5: Section Clustering using LLM-based classification.
     """
 
     def __init__(self):
@@ -83,7 +83,7 @@ class SegmentationPipeline:
                 extracted_df = self.se3_segmenter.process_se3_segmentation(df_to_process) #, evaluate)  # TODO: Test
             case 4:
                 method_name = 'S-BERT and Spectral Clustering clusters'
-                extracted_df = self.transformer_spectral.process_sbert_spectral(df_to_process, evaluate)  # TODO: Test
+                extracted_df = self.transformer_spectral.process_sbert_spectral(df_to_process) #, evaluate)  # TODO: Test
                 pass
             case 5:
                 method_name = 'LLM classification'
