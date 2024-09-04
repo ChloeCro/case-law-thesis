@@ -32,7 +32,7 @@ class TfidfKMeansClusterer:
         Initializes the TfidfKMeansClusterer with Dutch stopwords and additional custom stopwords.
         Sets up the TF-IDF vectorizer with these stopwords.
         """
-        self.stop_words = stopwords.words('dutch') + constants.ADDITIONAL_STOPWORDS
+        self.stop_words = stopwords.words('dutch') + constants.ADDITIONAL_DUTCH_STOPWORDS
         self.vectorizer = TfidfVectorizer(stop_words=self.stop_words)
 
     @staticmethod

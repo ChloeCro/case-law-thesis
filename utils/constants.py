@@ -61,7 +61,7 @@ SEED_WORDS_LIST = [
     ["proceshandelingen_partijen", "het geschil", "tenlastelegging", "de tenlastelegging", "de vordering", "het verweer", "het verzoek", "geschil", "geding in cassatie", "eis officier van justitie", "de vordering en het verweer", "de inhoud van de tenlastelegging", "het wrakingsverzoek", "geschil in hoger beroep", "het verzoek en het verweer", "geschil en conclusies van partijen", "het cassatieberoep", "het geschil in conventie", "de standpunten", "standpunten van partijen", "het standpunt van de officier van justitie", "de vordering tot tenuitvoerlegging"]
 ]
 
-ADDITIONAL_STOPWORDS = ['de', 'het', 'een', 'en', 'van', 'in', 'op', 'aan', 'met', 'voor', 'over', 'onder', 'tussen', 'door', 'uit', 'naar', 'bij']
+ADDITIONAL_DUTCH_STOPWORDS = ['de', 'het', 'een', 'en', 'van', 'in', 'op', 'aan', 'met', 'voor', 'over', 'onder', 'tussen', 'door', 'uit', 'naar', 'bij']
 
 LEGAL_TOPIC_LIST = ['feiten en omstandigheden', 'eerdere juridische acties en beslissingen (tevens onderscheid tussen gedaagde, appellant en de verschillende juridische instanties zoals rechtbank, hof van beroep etc.)',
                     'standpunten van appellant', 'standpunten van verweerder', 'juridische middelen', 'beoordeling door rechter/College', 'proceskosten']
