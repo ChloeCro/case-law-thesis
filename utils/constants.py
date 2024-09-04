@@ -7,7 +7,7 @@ SEGMENTATION_LOGGER_NAME = 'Segmentation Pipeline'
 SUMMARIZATION_LOGGER_NAME = 'Summarization Pipeline'
 
 #########################################
-#        Data Processing Paths          #
+#     Paths, Columns and variables      #
 #########################################
 
 # FOLDER PATHS
