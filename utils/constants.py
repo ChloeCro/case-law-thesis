@@ -115,7 +115,8 @@ SEED_WORDS_LIST = [
      "de vordering en het verweer", "de inhoud van de tenlastelegging", "het wrakingsverzoek",
      "geschil in hoger beroep", "het verzoek en het verweer", "geschil en conclusies van partijen",
      "het cassatieberoep", "het geschil in conventie", "de standpunten", "standpunten van partijen",
-     "het standpunt van de officier van justitie", "de vordering tot tenuitvoerlegging"]
+     "het standpunt van de officier van justitie", "de vordering tot tenuitvoerlegging"
+     ]
 ]
 
 ADDITIONAL_DUTCH_STOPWORDS = ['de', 'het', 'een', 'en', 'van', 'in', 'op', 'aan', 'met', 'voor', 'over', 'onder',
