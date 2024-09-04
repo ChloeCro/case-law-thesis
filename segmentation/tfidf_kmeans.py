@@ -138,10 +138,14 @@ class TfidfKMeansClusterer:
         if evaluate:
             # Evaluate the quality of the clustering
             logger.info("Evaluating the clusters...")
-            silhouette, db_index = segmentation_eval.SegmentationEvaluator.evaluate_clusters(tfidf_matrix,
-                                                                                             cluster_labels)
+
+            silhouette = segmentation_eval.SegmentationEvaluator.evaluate_silhouette(tfidf_matrix, cluster_labels)
+            db_index = segmentation_eval.SegmentationEvaluator.evaluate_davies_bouldin(tfidf_matrix, cluster_labels)
+            ch_score = segmentation_eval.SegmentationEvaluator.evaluate_calinski_harabasz(tfidf_matrix, cluster_labels)
+
             logger.info(f"Silhouette Score: {silhouette:.4f}")
             logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
+            logger.info(f'Calinski-Harabasz Score: {ch_score:.4f}')
 
         if plot:
             logger.info("Generating the cluster plot...")
