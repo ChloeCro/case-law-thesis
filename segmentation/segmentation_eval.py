@@ -38,10 +38,10 @@ class SegmentationEvaluator:
     @staticmethod
     def evaluate_calinski_harabasz(embeddings: np.array, cluster_labels: np.ndarray[int]):
         """
-        Evaluates the quality of the clusters using Davies-Bouldin Index.
+        Evaluates the quality of the clusters using the Calinski-Harabasz Index.
         :param embeddings: The TF-IDF matrix representing the text data.
         :param cluster_labels: An array of cluster labels assigned to each document.
-        :return: A float that represents the Davies-Bouldin Index.
+        :return: A float that represents the Calinski-Harabasz Index.
         """
         # Check if embeddings need to be converted to a dense array
         if hasattr(embeddings, 'toarray'):
@@ -53,10 +53,10 @@ class SegmentationEvaluator:
     @staticmethod
     def evaluate_ari(true_labels: list, predicted_labels: list):
         """
-        Evaluates the quality of the clusters using Davies-Bouldin Index.
+        Evaluates the quality of the clusters using the Adjusted Rand Index (ARI).
         :param true_labels: The TF-IDF matrix representing the text data.
         :param predicted_labels: An array of cluster labels assigned to each document.
-        :return: A float that represents the Davies-Bouldin Index.
+        :return: A float that represents the Adjusted Rand Index (ARI).
         """
         ari = adjusted_rand_score(true_labels, predicted_labels)
         return ari
@@ -64,10 +64,10 @@ class SegmentationEvaluator:
     @staticmethod
     def evaluate_nmi(true_labels: list, predicted_labels: list):
         """
-        Evaluates the quality of the clusters using Davies-Bouldin Index.
+        Evaluates the quality of the clusters using Normalized Mutual Information (NMI).
         :param true_labels: The TF-IDF matrix representing the text data.
         :param predicted_labels: An array of cluster labels assigned to each document.
-        :return: A float that represents the Davies-Bouldin Index.
+        :return: A float that represents the Normalized Mutual Information (NMI).
         """
         nmi = normalized_mutual_info_score(true_labels, predicted_labels)
         return nmi
