@@ -28,7 +28,11 @@ class SegmentationEvaluator:
         :param cluster_labels: An array of cluster labels assigned to each document.
         :return: A float that represents the Davies-Bouldin Index.
         """
-        dbi = davies_bouldin_score(embeddings.toarray(), cluster_labels)
+        # Check if embeddings need to be converted to a dense array
+        if hasattr(embeddings, 'toarray'):
+            embeddings = embeddings.toarray()
+
+        dbi = davies_bouldin_score(embeddings, cluster_labels)
         return dbi
 
     @staticmethod
@@ -39,7 +43,11 @@ class SegmentationEvaluator:
         :param cluster_labels: An array of cluster labels assigned to each document.
         :return: A float that represents the Davies-Bouldin Index.
         """
-        ch_score = calinski_harabasz_score(embeddings.toarray(), cluster_labels)
+        # Check if embeddings need to be converted to a dense array
+        if hasattr(embeddings, 'toarray'):
+            embeddings = embeddings.toarray()
+
+        ch_score = calinski_harabasz_score(embeddings, cluster_labels)
         return ch_score
 
     @staticmethod
