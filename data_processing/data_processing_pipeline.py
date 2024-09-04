@@ -34,7 +34,6 @@ class DataProcessing:
         self.full_text_extractor = full_text_extraction.FullTextExtractor()
         self.section_extractor = section_extraction.SectionExtractor()
         self.header_extractor = header_extraction.HeaderExtractor()
-        self.subset_extractor = subset_extraction.SubsetExtractor()
 
     def data_process_selector(self, method: int, input_path: str):
         """
