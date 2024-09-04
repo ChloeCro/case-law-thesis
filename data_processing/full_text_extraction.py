@@ -55,13 +55,15 @@ class FullTextExtractor:
             date = soup.find("dcterms:date", {"rdfs:label": "Uitspraakdatum"}).get_text() \
                 if soup.find("dcterms:date", {"rdfs:label": "Uitspraakdatum"}) else ''
             inhoud = soup.find("inhoudsindicatie").get_text() if soup.find("inhoudsindicatie") else ''
+            instantie = soup.find("dcterms:creator", {"rdfs:label": "Instantie"}).get_text() \
+                if soup.find("dcterms:creator", {"rdfs:label": "Instantie"}) else ''
 
             # Extract the text from all <section> tags and combine it
             sections = soup.find_all('section')
             combined_text = ' '.join(section.get_text(separator=' ', strip=True) for section in sections)
 
             # Append the extracted information to the judgement_list
-            judgement_list.extend([ecli, date, inhoud, combined_text])
+            judgement_list.extend([ecli, date, inhoud, instantie, combined_text])
 
         return judgement_list
 
@@ -102,7 +104,11 @@ class FullTextExtractor:
         result_lists = self.process_files_in_parallel(xml_files)
 
         # Define the column names for the resulting DataFrame and create a DataFrame from the extracted results
-        column_names = ['ecli', 'date', 'inhoudsindicatie', 'fulltext']
+        column_names = [constants.ECLI_COL,
+                        constants.DATE_COL,
+                        constants.INHOUD_COL,
+                        constants.INSTANTIE_COL,
+                        constants.FULLTEXT_COL]
         result_df = pd.DataFrame(result_lists, columns=column_names)
 
         return result_df

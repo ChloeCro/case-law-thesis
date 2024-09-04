@@ -32,7 +32,9 @@ LLM_PROMPT_NL_PATH = os.path.join(SEGMENTATION_DIR, 'prompt_nl.txt')
 EMBEDDINGS_SAVE_PATH = os.path.join(SEGMENTATION_DIR)
 
 # COLUMNS
-INSTANTIE_COL = 'instantie'
+ECLI_COL = 'ecli'
+DATE_COL = 'date'
+INSTANTIE_COL = 'legal_body'
 INHOUD_COL = 'inhoudsindicatie'
 SECTIONS_COL = 'sections'
 FULLTEXT_COL = 'fulltext'
