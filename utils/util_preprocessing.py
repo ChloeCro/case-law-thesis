@@ -74,10 +74,15 @@ def generate_trigrams(sentences: List[str]) -> List[List[str]]:
 def create_subset_based_on_proportions(df: pd.DataFrame, subset_size: int = 100) -> pd.DataFrame:
     """
     Creates a subset of the DataFrame based on the proportions of values in the 'instantie' column.
+    Rows where constants.INHOUD_COL has NaN values are removed before selecting the subset.
+
     :param df: The original DataFrame.
     :param subset_size: The desired number of rows in the subset.
     :return: A subset DataFrame with proportions reflecting those in the 'instantie' column.
     """
+    # Remove rows where 'constants.INHOUD_COL' has NaN values
+    df = df.dropna(subset=[constants.INHOUD_COL])
+
     # Calculate the proportions of each value in the 'instantie' column
     proportions = df[constants.INSTANTIE_COL].value_counts(normalize=True)
 

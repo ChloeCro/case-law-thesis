@@ -3,6 +3,7 @@ import numpy as np
 
 from typing import List
 from sklearn.cluster import SpectralClustering
+from sklearn.metrics.pairwise import cosine_similarity
 from utils import constants, logger_script, util_preprocessing
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
@@ -35,7 +36,6 @@ class TFSpectralClusterer:
         embeddings into 8 clusters using nearest neighbors affinity.
         """
         self.embedding_model = SentenceTransformer(constants.DUTCH_BERT)
-        self.cluster_model = SpectralClustering(n_clusters=8, affinity='nearest_neighbors', random_state=42)
 
     @staticmethod
     def aggregate_embeddings(embeddings: List[np.ndarray], method: str = 'mean') -> np.ndarray:
@@ -54,19 +54,16 @@ class TFSpectralClusterer:
         else:
             raise ValueError(f"Unknown aggregation method: {method}")
 
-    def process_sbert_spectral(self, input_df: pd.DataFrame) -> pd.DataFrame:
+    def process_sbert_spectral(self,
+                               input_df: pd.DataFrame,
+                               seed_words_list: List[List[str]]) -> pd.DataFrame:
         """
-        Processes input documents for segmentation using sentence embeddings and spectral clustering.
-
-        This method performs the following steps:
-        1. Creates a subset of the input data based on the proportions of values in the 'instantie' column.
-        2. Preprocesses the input data.
-        3. Computes embeddings for the preprocessed data.
-        4. Applies spectral clustering to the embeddings to assign cluster labels to each document.
-        5. Returns the DataFrame with cluster labels.
+        Processes input documents for segmentation using sentence embeddings and spectral clustering, with a bias
+        towards certain seed words, working with trigrams.
 
         :param input_df: A pandas DataFrame containing the input documents to be segmented.
-        :return: A pandas DataFrame with cluster labels assigned to each document.
+        :param seed_words_list: A list of seed word clusters to guide the clustering.
+        :return: A pandas DataFrame with clusters biased towards seed words.
         """
         # Create a subset of the DataFrame based on the proportions of 'instantie'
         subset_df = util_preprocessing.create_subset_based_on_proportions(input_df)
@@ -75,21 +72,58 @@ class TFSpectralClusterer:
         subset_df = util_preprocessing.tokenize_sentences(subset_df, constants.FULLTEXT_COL)
         trigrams = subset_df[constants.TOKENIZED_COL].apply(util_preprocessing.generate_trigrams)
 
-        aggregated_embeddings = []  # List to store the aggregated embeddings for each document
+        seed_embeddings = []
+        for seed_words in seed_words_list:
+            seed_embeddings.append(
+                [self.embedding_model.encode(seed, normalize_embeddings=True) for seed in seed_words])
+
+        aggregated_embeddings = []  # To store the aggregated trigram embeddings for each document
+        trigram_sentences = []  # To store trigrams as lists of sentences for mapping back to clusters
+        all_trigram_embeddings = []  # To store all individual trigram embeddings for bias calculation
 
         # Compute embeddings for each trigram and aggregate them
-        for trigrams in tqdm(trigrams, desc="Computing aggregated embeddings"):
+        for trigram_list in tqdm(trigrams, desc="Computing aggregated embeddings"):
             trigram_embeddings = [self.embedding_model.encode(' '.join(trigram), normalize_embeddings=True) for trigram
-                                  in trigrams]
-            # Aggregate embeddings for the trigrams using the specified method
+                                  in trigram_list]
             aggregated_embedding = self.aggregate_embeddings(trigram_embeddings, method='mean')
+
             aggregated_embeddings.append(aggregated_embedding)
+            trigram_sentences.append(trigram_list)
+            all_trigram_embeddings.extend(
+                trigram_embeddings)  # Collect all trigram embeddings for similarity calculation
 
-        # Convert the list of aggregated embeddings to a numpy array
-        embeddings = np.array(aggregated_embeddings)
+        # Convert the embeddings and seed embeddings to numpy arrays
+        all_trigram_embeddings = np.array(all_trigram_embeddings)
 
-        # Apply Spectral Clustering and create clusters from embeddings and store labels
-        labels = self.cluster_model.fit_predict(embeddings)
-        subset_df[constants.CLUSTER_COL] = labels
+        # Compute cosine similarity between trigram embeddings and seed word clusters
+        seed_cluster_similarities = []
+        for seed_cluster in seed_embeddings:
+            cluster_embedding = np.mean(seed_cluster, axis=0)  # Average embedding of seed words in each cluster
+            similarity_scores = cosine_similarity(all_trigram_embeddings, [cluster_embedding])
+            seed_cluster_similarities.append(similarity_scores)
+
+        # Concatenate similarity scores with original embeddings to form augmented embeddings
+        augmented_embeddings = np.hstack([all_trigram_embeddings] + seed_cluster_similarities)
+
+        # Apply Spectral Clustering with augmented embeddings
+        num_clusters = min(max(2, len(trigrams) // 2), 8)
+        cluster_model = SpectralClustering(n_clusters=num_clusters, affinity='nearest_neighbors', random_state=42)
+        labels = cluster_model.fit_predict(augmented_embeddings)
+
+        # Create a dictionary that maps cluster labels to their sentences for each document
+        cluster_to_sentences = []
+        trigram_index = 0  # To track which trigram we are assigning during clustering
+
+        for trigram_list in trigram_sentences:
+            cluster_dict = {}
+            for trigram in trigram_list:
+                label = labels[trigram_index]  # Get the cluster label for the current trigram
+                trigram_sentence = ' '.join(trigram)
+                cluster_dict.setdefault(label, []).append(trigram_sentence)
+                trigram_index += 1  # Move to the next trigram
+            cluster_to_sentences.append(cluster_dict)
+
+        # Add the cluster-to-sentence mapping as a new column to the DataFrame
+        subset_df[constants.CLUSTER_COL] = cluster_to_sentences
 
         return subset_df

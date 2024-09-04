@@ -1,5 +1,6 @@
 import pandas as pd
 import torch
+import multiprocessing as mp
 
 from rouge_score import rouge_scorer
 from transformers import AutoModel, AutoTokenizer
@@ -151,6 +152,22 @@ class Se3Clusterer:
             targets.append(best_target)  # Append the best match or None if no match found
         return targets
 
+    def process_document(self, row: pd.Series, min_size: int, max_size: int) -> Dict[
+        str, Union[List[str], List[Union[str, None]]]]:
+        """
+        Processes a single document (row) for segmentation and target assignment.
+        """
+        document = row[constants.FULLTEXT_COL].split('. ')
+        summary_sentences = row[constants.INHOUD_COL].split('. ')
+
+        # Create chunks from the document
+        chunks = self.create_chunks(document, min_size, max_size)
+
+        # Assign the most relevant summary sentences to the chunks
+        targets = self.assign_targets(chunks, summary_sentences)
+
+        return {'chunks': chunks, 'targets': targets}
+
     def process_se3_segmentation(self, input_df: pd.DataFrame) -> List[Dict[str,
                                                                             Union[List[str], List[Union[str, None]]]]]:
         """
@@ -168,20 +185,11 @@ class Se3Clusterer:
         # Create a subset of the DataFrame based on the proportions of 'instantie'
         subset_df = util_preprocessing.create_subset_based_on_proportions(input_df)
 
-        for index, row in tqdm(subset_df.iterrows(), total=subset_df.shape[0], desc="Processing documents with Se3"):
-            document = row[constants.FULLTEXT_COL].split('. ')  # Split document into sentences
-            summary_sentences = row[constants.INHOUD_COL].split('. ')  # Split summary into sentences
-
-            # Create chunks from the document
-            chunks = self.create_chunks(document, min_size, max_size)
-
-            # Assign the most relevant summary sentences to the chunks
-            targets = self.assign_targets(chunks, summary_sentences)
-
-            # Store the results
-            results.append({
-                'chunks': chunks,
-                'targets': targets
-            })
+        # Use multiprocessing Pool to process documents in parallel
+        num_processes = mp.cpu_count()
+        with mp.Pool(processes=num_processes) as pool:
+            results = list(tqdm(pool.imap(lambda row: self.process_document(row, min_size, max_size),
+                                          [row for _, row in subset_df.iterrows()]),
+                                total=subset_df.shape[0], desc="Processing documents with Se3"))
 
         return results
