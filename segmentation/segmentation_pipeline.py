@@ -25,9 +25,9 @@ class SegmentationPipeline:
                                               - Clustering based on seed words.
                                               - Clustering based on labeled data.
         se3_segmenter (Se3Clusterer): Clusters full text content using a self-segmentation approach.
-        transformer_spectral (TFSpectralClusterer): Clusters specific sections of documents using Transformer
-                                                    embeddings combined with Spectral Clustering.
-        llm_clusterer (LLMClusterer): Placeholder for clustering and classification using a Large Language Model.
+        transformer_spectral (TFSpectralClusterer): Clusters specific sections (tri-grams) of documents using
+                                                    Transformer embeddings combined with Spectral Clustering.
+        llm_clusterer (LLMClusterer): Clusters document sections using a Large Language Model.
 
     Methods:
         segmentation_process_selector(method: int, input_path: str):
