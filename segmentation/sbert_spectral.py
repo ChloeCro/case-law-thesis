@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import segmentation_eval
 
 from typing import List
 from sklearn.cluster import SpectralClustering
@@ -17,8 +18,8 @@ class TFSpectralClusterer:
     Transformer model. The clustering process segments the input documents based on their semantic similarity.
 
     Attributes:
-        cluster_model (SpectralClustering): The spectral clustering model used for segmenting the sentence embeddings
-                                            into clusters.
+        embedding_model (SentenceTransformer): The SentenceTransformer model used to compute sentence embeddings
+                                               for the input documents.
 
     Methods:
         compute_embeddings(docs, batch_size=32, file_path=constants.EMBEDDINGS_SAVE_PATH, file_name="sent_embeddings",
@@ -32,8 +33,7 @@ class TFSpectralClusterer:
 
     def __init__(self):
         """
-        Initializes the TFSpectralClusterer with a Spectral Clustering model configured for clustering sentence
-        embeddings into 8 clusters using nearest neighbors affinity.
+        Initializes the TFSpectralClusterer with a SentenceTransformer model configured for computing embeddings.
         """
         self.embedding_model = SentenceTransformer(constants.DUTCH_BERT)
 
@@ -64,6 +64,7 @@ class TFSpectralClusterer:
 
         :param input_df: A pandas DataFrame containing the input documents to be segmented.
         :param seed_words_list: A list of seed word clusters to guide the clustering.
+        :param evaluate: A bool that indicates whether evaluation scores must be saved.
         :return: A pandas DataFrame with clusters biased towards seed words.
         """
         # Create a subset of the DataFrame based on the proportions of 'instantie'
@@ -114,10 +115,12 @@ class TFSpectralClusterer:
         if evaluate:
             # Evaluate the quality of the clustering
             logger.info("Evaluating the clusters...")
-            silhouette, db_index = segmentation_eval.SegmentationEvaluator.evaluate_clusters(tfidf_matrix,
-                                                                                             cluster_labels)
+            silhouette = segmentation_eval.SegmentationEvaluator.evaluate_silhouette(augmented_embeddings, labels)
+            db_index = segmentation_eval.SegmentationEvaluator.evaluate_davies_bouldin(augmented_embeddings, labels)
+            ch_score = segmentation_eval.SegmentationEvaluator.evaluate_calinski_harabasz(augmented_embeddings, labels)
             logger.info(f"Silhouette Score: {silhouette:.4f}")
             logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
+            logger.info(f"Calinski-Harabasz Score: {ch_score:.4f}")
 
         # Create a dictionary that maps cluster labels to their sentences for each document
         cluster_to_sentences = []

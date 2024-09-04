@@ -1,6 +1,5 @@
 import pandas as pd
 import torch
-import multiprocessing as mp
 
 from rouge_score import rouge_scorer
 from transformers import AutoModel, AutoTokenizer
@@ -152,30 +151,16 @@ class Se3Clusterer:
             targets.append(best_target)  # Append the best match or None if no match found
         return targets
 
-    def process_document(self, row: pd.Series, min_size: int, max_size: int) -> Dict[
-        str, Union[List[str], List[Union[str, None]]]]:
-        """
-        Processes a single document (row) for segmentation and target assignment.
-        """
-        document = row[constants.FULLTEXT_COL].split('. ')
-        summary_sentences = row[constants.INHOUD_COL].split('. ')
-
-        # Create chunks from the document
-        chunks = self.create_chunks(document, min_size, max_size)
-
-        # Assign the most relevant summary sentences to the chunks
-        targets = self.assign_targets(chunks, summary_sentences)
-
-        return {'chunks': chunks, 'targets': targets}
-
-    def process_se3_segmentation(self, input_df: pd.DataFrame) -> List[Dict[str,
-                                                                            Union[List[str], List[Union[str, None]]]]]:
+    def process_se3_segmentation(self,
+                                 input_df: pd.DataFrame,
+                                 evaluate: bool) -> List[Dict[str, Union[List[str], List[Union[str, None]]]]]:
         """
         Processes a DataFrame of legal documents by segmenting them into chunks and assigning summary targets.
         This method first creates a subset of the input DataFrame based on the proportions of values in the 'instantie'
         column. Then, it splits each document into chunks and assigns the most similar summary sentence to each chunk.
         The results are returned as a list of dictionaries containing the chunks and their corresponding targets.
         :param input_df: A pandas DataFrame containing the documents to be processed.
+        :param evaluate: A bool that indicates whether evaluation scores must be saved.
         :return: A list of dictionaries, where each dictionary contains 'chunks' (list of sentences) and 'targets'
             (list of summary sentences).
         """
@@ -185,11 +170,36 @@ class Se3Clusterer:
         # Create a subset of the DataFrame based on the proportions of 'instantie'
         subset_df = util_preprocessing.create_subset_based_on_proportions(input_df)
 
-        # Use multiprocessing Pool to process documents in parallel
-        num_processes = mp.cpu_count()
-        with mp.Pool(processes=num_processes) as pool:
-            results = list(tqdm(pool.imap(lambda row: self.process_document(row, min_size, max_size),
-                                          [row for _, row in subset_df.iterrows()]),
-                                total=subset_df.shape[0], desc="Processing documents with Se3"))
+        total_rouge_score = 0
+        n = 0  # To track the number of comparisons
+
+        for index, row in tqdm(subset_df.iterrows(), total=subset_df.shape[0], desc="Processing documents with Se3"):
+            document = row[constants.FULLTEXT_COL].split('. ')  # Split document into sentences
+            summary_sentences = row[constants.INHOUD_COL].split('. ')  # Split summary into sentences
+
+            # Create chunks from the document
+            chunks = self.create_chunks(document, min_size, max_size)
+
+            # Assign the most relevant summary sentences to the chunks
+            targets = self.assign_targets(chunks, summary_sentences)
+
+            # Evaluate ROUGE score between chunks and summary sentences
+            if evaluate:
+                for chunk, target in zip(chunks, targets):
+                    if target is not None:
+                        rouge_score = self.compute_rouge(chunk, target)
+                        total_rouge_score += rouge_score
+                        n += 1
+
+            # Store the results
+            results.append({
+                'chunks': chunks,
+                'targets': targets
+            })
+
+        if evaluate:
+            # Compute the average ROUGE score across all documents
+            avg_rouge_score = total_rouge_score / n if n > 0 else 0
+            logger.info(f"Average ROUGE-1 Precision Score: {avg_rouge_score:.4f}")
 
         return results
