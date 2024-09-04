@@ -63,7 +63,7 @@ class DataProcessing:
                 extracted_df = self.header_extractor.extract_headers(input_path)
 
         if extracted_df is not None and not extracted_df.empty:
-            # Generate the current timestamp
+            # Generate the current timestamp TODO: change this naming to the year instead of datetime
             current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
             # Create the filename using the method name and the current time
             filename = f"{method_name}_{current_time}.csv"
