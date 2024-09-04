@@ -56,7 +56,8 @@ class TFSpectralClusterer:
 
     def process_sbert_spectral(self,
                                input_df: pd.DataFrame,
-                               seed_words_list: List[List[str]]) -> pd.DataFrame:
+                               seed_words_list: List[List[str]],
+                               evaluate: bool) -> pd.DataFrame:
         """
         Processes input documents for segmentation using sentence embeddings and spectral clustering, with a bias
         towards certain seed words, working with trigrams.
@@ -109,6 +110,14 @@ class TFSpectralClusterer:
         num_clusters = min(max(2, len(trigrams) // 2), 8)
         cluster_model = SpectralClustering(n_clusters=num_clusters, affinity='nearest_neighbors', random_state=42)
         labels = cluster_model.fit_predict(augmented_embeddings)
+
+        if evaluate:
+            # Evaluate the quality of the clustering
+            logger.info("Evaluating the clusters...")
+            silhouette, db_index = segmentation_eval.SegmentationEvaluator.evaluate_clusters(tfidf_matrix,
+                                                                                             cluster_labels)
+            logger.info(f"Silhouette Score: {silhouette:.4f}")
+            logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
 
         # Create a dictionary that maps cluster labels to their sentences for each document
         cluster_to_sentences = []

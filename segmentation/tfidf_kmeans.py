@@ -228,10 +228,35 @@ class TfidfKMeansClusterer:
         if evaluate:
             # Evaluate the quality of the clustering
             logger.info("Evaluating the clusters...")
-            silhouette, db_index = segmentation_eval.SegmentationEvaluator.evaluate_clusters(tfidf_matrix,
-                                                                                             cluster_labels)
+
+            # Find all occurrences of each labeled header in header_values
+            labeled_true_clusters = []
+            labeled_predicted_clusters = []
+
+            for header, true_cluster in zip(labeled_headers, labeled_clusters):
+                # Find all occurrences of this labeled header in the input headers
+                occurrences = [i for i, h in enumerate(header_values) if h.lower() == header]
+                # Append the true cluster and predicted cluster for each occurrence
+                labeled_true_clusters.extend([true_cluster] * len(occurrences))
+                labeled_predicted_clusters.extend([cluster_labels[i] for i in occurrences])
+
+            # Evaluate internal metrics (on full data)
+            silhouette = segmentation_eval.SegmentationEvaluator.evaluate_silhouette(tfidf_matrix, cluster_labels)
+            db_index = segmentation_eval.SegmentationEvaluator.evaluate_davies_bouldin(tfidf_matrix, cluster_labels)
+            ch_score = segmentation_eval.SegmentationEvaluator.evaluate_calinski_harabasz(tfidf_matrix, cluster_labels)
+
+            # Evaluate external metrics (on duplicated labeled data)
+            ari = segmentation_eval.SegmentationEvaluator.evaluate_ari(labeled_true_clusters,
+                                                                       labeled_predicted_clusters)
+            nmi = segmentation_eval.SegmentationEvaluator.evaluate_nmi(labeled_true_clusters,
+                                                                       labeled_predicted_clusters)
+
+            # Log evaluation results
+            logger.info(f'Calinski-Harabasz Score: {ch_score:.4f}')
             logger.info(f"Silhouette Score: {silhouette:.4f}")
             logger.info(f"Davies-Bouldin Index: {db_index:.4f}")
+            logger.info(f'Adjusted Rand Index: {ari:.4f}')
+            logger.info(f'Normalized Mutual Information: {nmi:.4f}')
 
         if plot:
             logger.info("Generating the cluster plot...")

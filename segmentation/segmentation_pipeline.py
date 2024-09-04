@@ -1,4 +1,5 @@
 import os
+import warnings
 import argparse
 import pandas as pd
 from datetime import datetime
@@ -6,6 +7,7 @@ from datetime import datetime
 import tfidf_kmeans, se3, sbert_spectral, llm
 from utils import constants, logger_script, util_data_loader
 
+warnings.filterwarnings("ignore")
 logger = logger_script.get_logger(constants.SEGMENTATION_LOGGER_NAME)
 
 
@@ -84,7 +86,8 @@ class SegmentationPipeline:
             case 4:
                 method_name = 'S-BERT and Spectral Clustering clusters'
                 extracted_df = self.transformer_spectral.process_sbert_spectral(df_to_process,
-                                                                                constants.SEED_WORDS_LIST)  # evaluate) TODO: Evaluation
+                                                                                constants.SEED_WORDS_LIST,
+                                                                                evaluate)
             case 5:
                 method_name = 'LLM classification'
                 extracted_df = self.llm_clusterer.process_llm_segmentation(df_to_process)
