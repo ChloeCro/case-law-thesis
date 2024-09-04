@@ -1,3 +1,5 @@
+import ollama
+
 from transformers import BartForConditionalGeneration, BartTokenizer
 from utils import constants, logger_script
 
@@ -22,5 +24,34 @@ class AbstractiveSummarizer:
         # formatted_summary = "\n".join(textwrap.wrap(summary, width=80))
         return summary
 
-    def apply_llama(self):
-        pass
+    def apply_llama(self, text):
+        # Mistral 7B
+        model = 'llama3:instruct'
+
+        # Load the system prompt
+        with open(
+                'C:\\Users\\Chloe\\Documents\\MaastrichtLaw&Tech\\Thesis\\MscThesis\\summ_pipeline\\abstractive_methods\\summ_sys_prompt.txt',
+                'r', encoding='utf-8') as file:
+            sys_prompt = file.read()
+
+        # Load the summarization prompt
+        with open(
+                'C:\\Users\\Chloe\\Documents\\MaastrichtLaw&Tech\\Thesis\\MscThesis\\summ_pipeline\\abstractive_methods\\summ_prompt.txt',
+                'r', encoding='utf-8') as file:
+            prompt = file.read()
+
+            # Get response
+        response = ollama.chat(model=model, keep_alive=0, options={'temperature': 0.0, 'seed': 42, "top_p": 0.0},
+                               messages=[
+                                   {
+                                       'role': 'system',
+                                       'content': sys_prompt
+                                   },
+                                   {
+                                       'role': 'user',
+                                       'content': prompt + text
+                                   },
+                               ])
+
+        return response['message']['content']
+

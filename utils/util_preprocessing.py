@@ -1,6 +1,9 @@
 import pandas as pd
+import re
 
 from nltk.tokenize import sent_tokenize
+from nltk.corpus import stopwords
+from gensim.models import Word2Vec
 from utils import constants
 from typing import List
 from tqdm import tqdm
@@ -99,3 +102,70 @@ def create_subset_based_on_proportions(df: pd.DataFrame, subset_size: int = 100)
     subset_df = pd.concat(subset_dfs).reset_index(drop=True)
 
     return subset_df
+
+
+def extract_texts(section_dict: dict):
+    """
+    Extract 'text' values from a dictionary of sections.
+    :param section_dict: A dictionary containing section information.
+    :return: A list of 'text' values from the sections dictionary.
+    """
+    return [section_dict[key]['text'] for key in section_dict if 'text' in section_dict[key]]
+
+
+def extract_text_from_sections(df: pd.DataFrame):
+    """
+    Apply the extract_texts function to the 'sections' column in the DataFrame.
+    :param df: A pandas DataFrame containing a 'sections' column with dictionaries.
+    :return: A DataFrame where the 'sections' column contains lists of 'text' values.
+    """
+    return df['sections'].apply(extract_texts).tolist()
+
+
+def clean_tokenized(tokenized_text):
+    # Extended cleaning to include tabs, multiple newlines, and other whitespace characters
+    return [re.sub(r'\s+', ' ', re.sub(r'[^\w\s]|[\d]', '', sentence.lower())).strip() for sentence in tokenized_text]
+
+
+def clean_text(text):
+    text = text.replace('\n', ' ')
+    text = re.sub(" +", " ", text)
+    text = re.sub(r' (?<!\S)\d+(\.\d+)+(?!\S) ', '', text)
+    text = text.strip()
+    return text
+
+
+def remove_stopwords(tokenized_text):
+    # import stopwords from NLTK
+    stop_words = stopwords.words('dutch')
+    # remove the stopwords and keep remaining tokens
+    sentence_tokens = [[words for words in sentence.split(' ') if words not in stop_words] for sentence in tokenized_text]
+    return sentence_tokens
+
+
+def get_embeddings(tokens):
+    for sublist in tokens:
+        # Use a list comprehension to filter out empty strings from each sublist
+        sublist[:] = [item for item in sublist if item != '']
+
+    w2v = Word2Vec(tokens, vector_size=1, min_count=1, epochs=1000)
+    # Initialize an empty list to store sentence embeddings
+    sentence_embeddings = []
+
+    # Calculate the sentence embeddings
+    for words in tokens:
+        word_embeddings = [w2v.wv[word] for word in words if word in w2v.wv]
+        if word_embeddings:
+            # If there are word embeddings for the words in the sentence
+            sentence_embedding = np.mean(word_embeddings, axis=0)
+            sentence_embeddings.append(sentence_embedding)
+        # else:
+        # Handle the case where no word embeddings are found for the sentence
+        # You can choose to skip or assign a default value here
+        #    sentence_embeddings.append(np.zeros(w2v.vector_size))
+
+    # sentence_embeddings=[[w2v[word][0] for word in words] for words in tokens]
+    # max_len=max([len(tokens) for tokens in tokens])
+    # sentence_embeddings=[np.pad(embedding,(0,max_len-len(embedding)),'constant') for embedding in sentence_embeddings]
+
+    return sentence_embeddings

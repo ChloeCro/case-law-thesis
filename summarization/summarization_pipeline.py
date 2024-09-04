@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 
 import extractive_summarization, abstractive_summarization
-from utils import constants, logger_script, util_data_loader
+from utils import constants, logger_script, util_data_loader, util_preprocessing
 
 logger = logger_script.get_logger(constants.SUMMARIZATION_LOGGER_NAME)
 
@@ -58,21 +58,27 @@ class SummarizationPipeline:
         logger.info("Loading input data...")
         df_to_process = util_data_loader.load_csv_to_df(input_path)
 
+        # Extract 'text' values from the parsed dictionaries in the 'sections' column
+        logger.info("Extracting 'text' values from the 'sections' column...")
+        text_data = util_preprocessing.extract_text_from_sections(df_to_process)
+
+        n_sent = 10
+
         # Determine the processing method and execute the corresponding segmentation technique.
         logger.info("Start summarization process...")
         match method:
             case 1:
                 method_name = 'TextRank'
-                extracted_df = self.extractive_summarizer.apply_textrank(df_to_process, evaluate)
+                extracted_df = self.extractive_summarizer.apply_textrank(text_data, evaluate, n_sent=n_sent)
             case 2:
                 method_name = 'BERT'
-                extracted_df = self.extractive_summarizer.apply_bert(df_to_process, evaluate)
+                extracted_df = self.extractive_summarizer.apply_bert(text_data, evaluate)
             case 3:
                 method_name = 'BART'
-                extracted_df = self.abstractive_summarizer.apply_bart(df_to_process, evaluate)
+                extracted_df = self.abstractive_summarizer.apply_bart(text_data, evaluate)
             case 4:
                 method_name = 'Llama3_1-8B-instruct'
-                extracted_df = self.abstractive_summarizer.apply_llama(df_to_process, evaluate)
+                extracted_df = self.abstractive_summarizer.apply_llama(text_data, evaluate)
                 pass
 
         if extracted_df is not None and not extracted_df.empty:
