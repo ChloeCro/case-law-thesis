@@ -3,7 +3,7 @@ import argparse
 import pandas as pd
 from datetime import datetime
 
-import header_extraction, full_text_extraction, section_extraction
+import header_extraction, full_text_extraction
 from utils import constants, logger_script
 
 logger = logger_script.get_logger(constants.EXTRACTION_LOGGER_NAME)
@@ -15,16 +15,13 @@ class DataProcessing:
 
     Attributes:
         full_text_extractor (FullTextExtractor): Extracts the full text content from documents.
-        section_extractor (SectionExtractor): Extracts specific sections of the documents.
         header_extractor (HeaderExtractor): Extracts header information additional to sections from documents.
-        subset_extractor (SubsetExtractor): Extracts the full text of a subset from the specified year.
 
     Methods:
         data_process_selector(method: int):
             Selects and applies the appropriate data processing method based on the given method number.
             - method 1: Full Text Extraction
-            - method 2: Section Extraction TODO
-            - method 3: Header Extraction
+            - method 2: Header Extraction
     """
 
     def __init__(self):
@@ -32,7 +29,6 @@ class DataProcessing:
         Initializes the data processing class with specific components for extracting data from the raw XML files.
         """
         self.full_text_extractor = full_text_extraction.FullTextExtractor()
-        self.section_extractor = section_extraction.SectionExtractor()
         self.header_extractor = header_extraction.HeaderExtractor()
 
     def data_process_selector(self, method: int, input_path: str):
@@ -41,8 +37,7 @@ class DataProcessing:
         chosen, the function extracts different types of data, saves the results to a CSV file, and logs the outcome.
         :param method: An integer representing the data processing method to execute. The options are:
             1: Extracts full text and saves it to a CSV file at the specified path.
-            2: Extracts sections and saves them to a CSV file at the specified path.
-            3: Extracts headers additional to sections and saves them to a CSV file at the specified path.
+            2: Extracts headers additional to sections and saves them to a CSV file at the specified path.
         :param input_path: The path to the file to be processed.
         :return: The function performs data extraction and saves the results to a CSV file.
         """
@@ -55,9 +50,6 @@ class DataProcessing:
                 method_name = 'fulltext'
                 extracted_df = self.full_text_extractor.extract_fulltext(input_path)
             case 2:
-                method_name = 'sections'
-                extracted_df = self.section_extractor.extract_sections(input_path)  # TODO: Implement
-            case 3:
                 method_name = 'headers'
                 extracted_df = self.header_extractor.extract_headers(input_path)
 
@@ -81,14 +73,12 @@ if __name__ == '__main__':
     # create the argument parser, add the arguments
     parser = argparse.ArgumentParser(description='Rechtspraak Data Processing',
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--method', type=int, choices=range(1, 4), default=3,
+    parser.add_argument('--method', type=int, choices=range(1, 3), default=3,
                         help=(
                             'Specify processing method (1-3): \n'
                             '1 = Full Text Extraction: creates a dataframe with a column that contains the document '
                             'full text (composed from "procesverloop", "overwegingen", and "beslissing"), \n'
-                            '2 = Main Section Extraction: creates a dataframe with 3 columns that contains text from '
-                            '"procesverloop", "overwegingen", and "beslissing", \n'
-                            '3 = Header Extraction: creates a dataframe with a column that holds a dictionary with '
+                            '2 = Header Extraction: creates a dataframe with a column that holds a dictionary with '
                             'section header and section text. '
                         ))
     parser.add_argument('--input', type=str, default=constants.RAW_DIR.format(year=2021),
