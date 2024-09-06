@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import re
 
 from nltk.tokenize import sent_tokenize
@@ -139,7 +140,8 @@ def remove_stopwords(tokenized_text):
     # import stopwords from NLTK
     stop_words = stopwords.words('dutch')
     # remove the stopwords and keep remaining tokens
-    sentence_tokens = [[words for words in sentence.split(' ') if words not in stop_words] for sentence in tokenized_text]
+    sentence_tokens = [[words for words in sentence.split(' ') if words not in stop_words]
+                       for sentence in tokenized_text]
     return sentence_tokens
 
 

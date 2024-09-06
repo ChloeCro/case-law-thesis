@@ -34,7 +34,8 @@ class SummarizationPipeline:
         Initializes the SummarizationPipeline with specific components for extractive and abstractive summarization
         methods.
         """
-        self.extractive_summarizer = extractive_summarization.ExtractiveSummarizer()
+        self.textrank_summarizer = extractive_summarization.TextRankSummarizer()
+        self.lsa_summarizer = extractive_summarization.LSAExtractiveSummarizer()
         self.abstractive_summarizer = abstractive_summarization.AbstractiveSummarizer()
 
     def summarization_process_selector(self, method: int, input_path: str, evaluate: bool):
@@ -57,6 +58,7 @@ class SummarizationPipeline:
         # Load the input dataframe
         logger.info("Loading input data...")
         df_to_process = util_data_loader.load_csv_to_df(input_path)
+        df_to_process = util_preprocessing.create_subset_based_on_proportions(df_to_process)
 
         # Extract 'text' values from the parsed dictionaries in the 'sections' column
         logger.info("Extracting 'text' values from the 'sections' column...")
@@ -69,17 +71,18 @@ class SummarizationPipeline:
         match method:
             case 1:
                 method_name = 'TextRank'
-                extracted_df = self.extractive_summarizer.apply_textrank(text_data, evaluate, n_sent=n_sent)
+                summary_list = self.textrank_summarizer.apply_textrank(text_data, evaluate, n_sent=n_sent)
             case 2:
-                method_name = 'BERT'
-                extracted_df = self.extractive_summarizer.apply_bert(text_data, evaluate)
+                method_name = 'LSA'
+                summary_list = self.lsa_summarizer.apply_lsa(text_data, evaluate)  # TODO: Fix
             case 3:
                 method_name = 'BART'
-                extracted_df = self.abstractive_summarizer.apply_bart(text_data, evaluate)
+                summary_list = self.abstractive_summarizer.apply_bart(text_data, evaluate)  # TODO: Implement
             case 4:
                 method_name = 'Llama3_1-8B-instruct'
-                extracted_df = self.abstractive_summarizer.apply_llama(text_data, evaluate)
+                summary_list = self.abstractive_summarizer.apply_llama(text_data, evaluate)  # TODO: Implement
                 pass
+
 
         if extracted_df is not None and not extracted_df.empty:
             # Generate the current timestamp
@@ -109,7 +112,7 @@ if __name__ == '__main__':
                             '3 = BART (abstractive summarization),\n'
                             '4 = Llama3.1-8B:instruct (abstractive summarization).'
                         ))
-    parser.add_argument('--input', type=str, default=constants.SECTIONS_PATH.format(year=2020),  # TODO: Make dynamic
+    parser.add_argument('--input', type=str, default=constants.SECTIONS_PATH.format(year=2021),  # TODO: Make dynamic
                         help="The path to the input data CSV file")
     parser.add_argument('--eval', action='store_true', help="If true, returns the evaluation scores in a CSV file.")
 

@@ -42,15 +42,11 @@ You can run the script from the command line with different options depending on
 
 - **Full Text Extraction**:
   ```bash
-  python script_name.py --method 1 --input path/to/input_file.csv
-  ```
-- **Main Section Extraction**:
-  ```bash
-  python script_name.py --method 2 --input path/to/input_file.csv
+  python summarization_pipeline.py --method 1 --input path/to/input_file.csv
   ```
 - **Header Extraction**:
   ```bash
-  python script_name.py --method 3 --input path/to/input_file.csv
+  python summarization_pipeline.py --method 2 --input path/to/input_file.csv
   ```
   
 ### Output
@@ -94,6 +90,29 @@ You can run the script from the command line with different options depending on
   - `5`: **LLM-based Clustering**: Clusters sections using a Large Language Model-based approach.
 
 - `--input` (required): Specifies the path to the input CSV file containing the document data.
+
+#### Example Commands
+
+- **TF-IDF + K-MEANS with seed words**:
+  ```bash
+  python segmentation_pipeline.py --method 1 --input path/to/input_file.csv
+  ```
+- **TF-IDF + K-MEANS with labeled data**:
+  ```bash
+  python segmentation_pipeline.py --method 2 --input path/to/input_file.csv
+  ```
+  - **Self-Segmentation (Se3)**:
+  ```bash
+  python segmentation_pipeline.py --method 3 --input path/to/input_file.csv
+  ```
+  - **S-BERT + Spectral Clustering**:
+  ```bash
+  python segmentation_pipeline.py --method 4 --input path/to/input_file.csv
+  ```
+  - **LLM-based Clustering**:
+  ```bash
+  python segmentation_pipeline.py --method 5 --input path/to/input_file.csv
+  ```
 
 ### Output
 The script clusters the data according to the selected method and saves the results into a CSV file at a predefined location. The file name and save path can be adjusted within the script.
