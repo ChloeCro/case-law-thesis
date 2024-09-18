@@ -1,6 +1,5 @@
 import os
 import bs4
-import logging
 import pandas as pd
 from bs4 import BeautifulSoup
 
@@ -44,7 +43,7 @@ class HeaderExtractor:
         """
         return ' '.join(section.stripped_strings)
 
-    def extract_section_info(self, soup: bs4.BeautifulSoup) -> dict:
+    def extract_titles(self, soup: bs4.BeautifulSoup) -> dict:
         """
         Extracts information from each section in the provided BeautifulSoup object, including section number, header
         text, and the full text of the section.
@@ -121,7 +120,7 @@ class HeaderExtractor:
                 wetsverwijzing = wetsverwijzing_tag.text
 
             # Extract section-specific information by calling the extract_section_info method
-            section_data = self.extract_section_info(soup)
+            section_data = self.extract_titles(soup)
 
             # If no valid sections are found, log a debug message and skip processing this file
             if not section_data:
