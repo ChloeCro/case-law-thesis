@@ -58,11 +58,19 @@ class SectionExtractor:
         :return: A list of strings representing the segmented sections of the document,
                          filtered to include only sections matching a numeric pattern.
         """
+        # Apply the merge pattern to the document text, using the replacer function
         merge_patterns = merge_patterns[0]
         text = re.sub(merge_patterns, self.replacer, doc)
+
+        # Combine split patterns into a single regex pattern
         super_pattern = "|".join(split_patterns)
+
+        # Split the document text into sections based on the combined pattern
         sectioning = re.split(super_pattern, text)
+
         stripped_list = [s.lstrip() for s in sectioning]
+
+        # Filter sections to keep only those starting with a numeric pattern (e.g., "1.")
         filtered_list = [s for s in stripped_list if re.match(r'\d+\.', s)]
         return filtered_list
 
@@ -108,7 +116,6 @@ class SectionExtractor:
             if rechtsgebied_tag: rechtsgebied = rechtsgebied_tag.text
             if wetsverwijzing_tag: wetsverwijzing = wetsverwijzing_tag.text
 
-
             # Process each section and convert to pure text
             sections = soup.find_all("section")
             for sec in sections:
@@ -140,8 +147,11 @@ class SectionExtractor:
         :param files: List of paths to XML files.
         :return: A list of results where each result is the output of `process_xml`.
         """
+        # Get the number of CPU cores to use for multiprocessing
         num_processes = multiprocessing.cpu_count()
         logger.info(f"Multiprocessing with {num_processes}.")
+
+        # Create a multiprocessing pool
         pool = multiprocessing.Pool(processes=num_processes)
 
         # Use the multiprocessing pool to process the XML files in parallel
@@ -163,7 +173,10 @@ class SectionExtractor:
         :return: A dictionary where the keys are the leading numbers (as integers),
                   and the values are the concatenated strings associated with that number.
         """
+        # Initialize a defaultdict to hold the organized strings
         result = defaultdict(list)
+
+        # Loop through each string and extract the leading number
         for string in strings:
             period_index = string.find('.')
             if period_index != -1:
@@ -186,9 +199,10 @@ class SectionExtractor:
         :param input_path: Path to the directory containing the XML files.
         :return: A DataFrame containing the extracted metadata and sections from the XML files.
         """
+        # Find all XML files in the input directory
         xml_files = [os.path.join(input_path, file) for file in os.listdir(input_path) if file.endswith('.xml')]
 
-        # Process the data
+        # Process the XML files in parallel
         result_lists = self.process_files_in_parallel(xml_files)
         filtered_results = [result for result in result_lists if result is not None]
 
@@ -198,21 +212,25 @@ class SectionExtractor:
                         'overwegingen', 'beslissing']
         df = pd.DataFrame(filtered_results, columns=column_names)
 
+        # Load the split and merge patterns for text sectioning
         documents = df[constants.OVERWEGINGEN_COL].tolist()
-
         split_patterns = util_data_loader.load_txt_file(constants.SPLIT_PATTERNS_PATH)
         merge_patterns = util_data_loader.load_txt_file(constants.MERGE_PATTERNS_PATH)
 
         segmented = []
+        # Segment the text of each document
         for i, text in enumerate(documents):
             if i % 100 == 0:
                 logger.info(f"Processing document number: {i} of {len(documents)}")
+            # Apply the text sectioning method to each document
             sections = self.text_sectioning(text, split_patterns, merge_patterns)
             sections = [item for item in sections if item is not None]
             segmented.append(sections)
 
+        # Add the segmented sections to the DataFrame
         df[constants.SECTIONS_COL] = segmented
 
+        # Organize the sections by leading number
         df[constants.SECTIONS_COL] = df[constants.SECTIONS_COL].apply(self.organize_by_number)
 
         return df
