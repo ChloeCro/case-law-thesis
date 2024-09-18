@@ -17,7 +17,7 @@ class HeaderExtractor:
     Methods:
         extract_text_from_section(section: bs4.element.Tag) -> str:
             Extracts and concatenates all stripped strings from a given HTML/XML section.
-        extract_section_info(soup: bs4.BeautifulSoup) -> dict:
+        extract_titles(soup: bs4.BeautifulSoup) -> dict:
             Extracts section-specific information, including section numbers, headers, and full text, from a parsed
             XML/HTML document.
         process_xml(xml_file: str) -> dict:
