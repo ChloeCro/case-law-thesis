@@ -1,4 +1,5 @@
 import multiprocessing
+import bs4
 import pandas as pd
 import os
 import re
@@ -11,13 +12,52 @@ from utils import constants, logger_script, util_data_loader
 logger = logger_script.get_logger(constants.EXTRACTION_LOGGER_NAME)
 
 class SectionExtractor:
+    """
+    A class dedicated to extracting sections, metadata, and structured text information from legal case documents
+    in XML format, particularly from Rechtspraak case documents.
+
+    Methods:
+        replacer(match: re.Match) -> str:
+            Concatenates the matched groups by excluding spaces and formatting them with "artikel" as a prefix.
+
+        text_sectioning(doc: str, split_patterns: list[str], merge_patterns: list[str]) -> list[str]:
+            Segments a document into sections based on split and merge patterns, returning a list of relevant sections.
+
+        extract_text_from_section(section: bs4.element.Tag) -> str:
+            Extracts and concatenates all stripped strings from a given HTML/XML section.
+
+        process_xml(xml_file: str) -> list[str] or None:
+            Processes a single XML file to extract metadata and key sections, returning them as a list of strings,
+            or None if critical sections are missing.
+
+        process_files_in_parallel(files: list[str]) -> list[list[str]]:
+            Processes multiple XML files in parallel using multiprocessing, returning a list of results,
+            each containing metadata and sections from a document.
+
+        organize_by_number(strings: list[str]) -> dict[int, str]:
+            Organizes a list of strings by their leading numbers and concatenates them into a dictionary
+            with ordered numeric keys.
+
+        extract_sections(input_path: str) -> pd.DataFrame:
+            Extracts sections from XML files within a directory and organizes them into a pandas DataFrame.
+    """
 
     # Function to concatenate the matched groups (excluding the space)
-    def replacer(self, match):
+    def replacer(self, match: re.Match) -> str:
+        """ Concatenates the matched groups by excluding spaces and formatting them in a specific way. """
         return f"artikel{match.group(1)}"
 
     # Your text_sectioning function
-    def text_sectioning(self, doc, split_patterns, merge_patterns):
+    def text_sectioning(self, doc: str, split_patterns: list[str], merge_patterns: list[str]) -> list[str]:
+        """
+        Segments a document into sections based on provided split and merge patterns.
+
+        :param doc: The document text to be segmented.
+        :param split_patterns: List of regex patterns used to split the text into sections.
+        :param merge_patterns: List of regex patterns used to merge certain sections.
+        :return: A list of strings representing the segmented sections of the document,
+                         filtered to include only sections matching a numeric pattern.
+        """
         merge_patterns = merge_patterns[0]
         text = re.sub(merge_patterns, self.replacer, doc)
         super_pattern = "|".join(split_patterns)
@@ -27,14 +67,25 @@ class SectionExtractor:
         return filtered_list
 
     # Function to extract text without XML tags
-    def extract_text_from_section(self, section):
+    def extract_text_from_section(self, section: bs4.element.Tag) -> str:
+        """
+        Extracts and returns the text content from a section while stripping XML/HTML tags.
+        :param section: A BeautifulSoup tag object representing an XML/HTML section.
+        :return: Cleaned text from the section with all XML/HTML tags removed.
+        """
         # Join all content within the section as a single string
         section_text = ''.join(str(child) for child in section.contents)
         # Create a new BeautifulSoup object to parse the content and strip tags
         clean_text = BeautifulSoup(section_text, 'html.parser').get_text()
         return clean_text
 
-    def process_xml(self, xml_file):
+    def process_xml(self, xml_file: str) -> list[str]:
+        """
+        Processes a single XML file to extract legal document information and its sections.
+        :param xml_file: Path to the XML file to be processed.
+        :return: A list containing extracted metadata and the text content of various sections.
+                  Returns None if critical sections are missing.
+        """
         with open(xml_file, 'r', encoding='utf-8') as file:
             soup = BeautifulSoup(file, 'xml')
 
@@ -83,7 +134,12 @@ class SectionExtractor:
             return judgement_list
 
 
-    def process_files_in_parallel(self, files):
+    def process_files_in_parallel(self, files: list[str]) -> list[list[str]]:
+        """
+        Processes multiple XML files in parallel using multiprocessing.
+        :param files: List of paths to XML files.
+        :return: A list of results where each result is the output of `process_xml`.
+        """
         num_processes = multiprocessing.cpu_count()
         logger.info(f"Multiprocessing with {num_processes}.")
         pool = multiprocessing.Pool(processes=num_processes)
@@ -100,7 +156,13 @@ class SectionExtractor:
         return result_lists
 
     @staticmethod
-    def organize_by_number(strings):
+    def organize_by_number(strings: list[str]) -> dict[int, str]:
+        """
+        Organizes a list of strings based on their leading number and concatenates them.
+        :param strings: A list of strings to organize by the number before the first period.
+        :return: A dictionary where the keys are the leading numbers (as integers),
+                  and the values are the concatenated strings associated with that number.
+        """
         result = defaultdict(list)
         for string in strings:
             period_index = string.find('.')
@@ -118,7 +180,12 @@ class SectionExtractor:
         return sorted_result
 
     def extract_sections(self, input_path: str) -> pd.DataFrame:
-
+        """
+        Extracts sections from XML files in the input directory, processes them,
+        and organizes them into a pandas DataFrame.
+        :param input_path: Path to the directory containing the XML files.
+        :return: A DataFrame containing the extracted metadata and sections from the XML files.
+        """
         xml_files = [os.path.join(input_path, file) for file in os.listdir(input_path) if file.endswith('.xml')]
 
         # Process the data
